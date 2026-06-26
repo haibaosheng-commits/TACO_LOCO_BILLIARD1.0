@@ -731,12 +731,24 @@
             <h3 id="modal-category-title">Item Purchase</h3>
             
             <label data-i18n="modal_select_table">Assign to Table</label>
-            <select id="store-item-table">
+            <select id="store-item-table" onchange="onStoreTableChange()">
                 <option value="Walk-in" data-i18n="opt_walkin">General / Walk-in</option>
                 <option value="1">Table 1</option>
                 <option value="2">Table 2</option>
                 <option value="3">Table 3 (VIP)</option>
             </select>
+
+            <div id="store-walkin-name-area">
+                <label id="lbl-store-customer-name">Customer Name (For Utang/Walk-in)</label>
+                <input type="text" id="store-customer-name" placeholder="Guest">
+
+                <label id="lbl-store-payment-method">Payment Method</label>
+                <select id="store-payment-method" onchange="onStorePaymentMethodChange()">
+                    <option value="Cash">💵 Cash</option>
+                    <option value="GCash">📱 GCash</option>
+                    <option value="Utang">📋 Put on Utang</option>
+                </select>
+            </div>
 
             <label data-i18n="modal_item_name">Item Name</label>
             <input type="text" id="store-item-name" placeholder="">
@@ -884,7 +896,7 @@
         
         let pendingCheckout = null;
         let selectedBaseMethod = "Cash"; // Cash or GCash
-        let finalLogToCommit = null; // GCash決済完了時にコミットするための保存用バッファ
+        let finalLogToCommit = null; 
 
         window.onload = function() {
             if (localStorage.getItem('taco_loco_state')) {
@@ -946,6 +958,9 @@
             document.getElementById('btn-ratio-half').innerText = currentLang === 'en' ? 'Half Utang' : '半分Utang';
             document.getElementById('btn-ratio-none').innerText = currentLang === 'en' ? 'No Utang' : 'Utangなし';
             
+            document.getElementById('lbl-store-customer-name').innerText = currentLang === 'en' ? "Customer Name (For Utang/Walk-in)" : "顧客名（Utang・一般客用）";
+            document.getElementById('lbl-store-payment-method').innerText = currentLang === 'en' ? "Payment Method" : "支払い方法";
+
             updateSelectOptions(1, 'standard');
             updateSelectOptions(2, 'standard');
             updateSelectOptions(3, 'vip');
@@ -1105,7 +1120,7 @@
                 timers[tableId].alarmInterval = null;
             }
             if (timers[tableId].audioObj) {
-                timers[tableObj].audioObj.pause();
+                timers[tableId].audioObj.pause();
                 timers[tableId].audioObj.currentTime = 0;
             }
             document.getElementById(`timer-${tableId}`).classList.remove('time-up');
@@ -1204,9 +1219,12 @@
 
         function closeCheckoutModal() {
             document.getElementById('checkout-modal').style.display = 'none';
-            if(pendingCheckout) {
+            if (pendingCheckout) {
                 const tId = pendingCheckout.tableId;
-                timers[tId].active = false;
+                // キャンセル時はタイマーの稼働フラグをリセット、もしくは再開可能にする
+                if (tId && timers[tId].remaining > 0) {
+                    timers[tId].active = false; // 一時停止状態にして再度Startできるようにする
+                }
             }
             pendingCheckout = null;
         }
@@ -1222,7 +1240,6 @@
             
             const immediateAmount = total - tabAmount; 
 
-            // 履歴に載せる支払い方法タグの作成
             let logPaymentText = "";
             if (tabAmount === total) {
                 logPaymentText = `(${i18n[currentLang].status_unpaid})`;
@@ -1232,7 +1249,6 @@
                 logPaymentText = `[Method: ${selectedBaseMethod}]`;
             }
 
-            // 一時バッファオブジェクトの構築
             finalLogToCommit = {
                 tableId: tId,
                 date: pendingCheckout.date,
@@ -1243,19 +1259,16 @@
                 tabAmount: tabAmount
             };
 
-            // GCashが選ばれており、即時支払う金額が0より大きい場合のみポップアップを出す
             if (selectedBaseMethod === 'GCash' && immediateAmount > 0) {
                 document.getElementById('checkout-modal').style.display = 'none';
                 document.getElementById('gcash-popup-amount').innerText = immediateAmount.toLocaleString();
                 document.getElementById('gcash-popup-modal').style.display = 'flex';
             } else {
-                // Cash または Utangのみの場合は決済確認モーダルを閉じて即座に確定処理
                 document.getElementById('checkout-modal').style.display = 'none';
                 commitPaymentData();
             }
         }
 
-        // 決済・売上データを実際にローカルストレージとステートへ反映するコアロジック
         function commitPaymentData() {
             if (!finalLogToCommit) return;
             
@@ -1289,17 +1302,18 @@
             populateMonthFilter();
             updateSalesAndHistoryDisplay();
 
-            // タイマー枠の完全初期化
             const tId = data.tableId;
-            timers[tId] = { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null };
-            updateTimerDisplay(tId);
-            document.getElementById(`order-history-${tId}`).innerHTML = "";
-            
-            document.getElementById(`name-${tId}`).disabled = false;
-            document.getElementById(`plan-${tId}`).disabled = false;
-            document.getElementById(`name-${tId}`).value = "";
-            document.getElementById(`start-time-${tId}`).innerText = "--:--";
-            document.getElementById(`end-time-${tId}`).innerText = "--:--";
+            if (tId) {
+                timers[tId] = { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null };
+                updateTimerDisplay(tId);
+                document.getElementById(`order-history-${tId}`).innerHTML = "";
+                
+                document.getElementById(`name-${tId}`).disabled = false;
+                document.getElementById(`plan-${tId}`).disabled = false;
+                document.getElementById(`name-${tId}`).value = "";
+                document.getElementById(`start-time-${tId}`).innerText = "--:--";
+                document.getElementById(`end-time-${tId}`).innerText = "--:--";
+            }
 
             showToast(data.tabAmount > 0 ? i18n[currentLang].toast_tab_added : "Saved successfully.");
             
@@ -1307,12 +1321,8 @@
             pendingCheckout = null;
         }
 
-        // GCashポップアップ内の「支払い完了」ボタンを押したときの処理
         function completeGcashPaymentFlow() {
-            // データコミットを実行
             commitPaymentData();
-            
-            // ポップアップを閉じる
             document.getElementById('gcash-popup-modal').style.display = 'none';
         }
 
@@ -1344,6 +1354,7 @@
             const secs = String(rem % 60).padStart(2, '0');
             document.getElementById(`timer-${tableId}`).innerText = `${hrs}:${mins}:${secs}`;
         }
+        
         let currentStoreCategory = "";
         function openStoreModal(category) {
             currentStoreCategory = category;
@@ -1354,8 +1365,25 @@
             document.getElementById('store-item-unit-price').value = "";
             document.getElementById('store-item-qty').value = "1";
             document.getElementById('store-item-total-price').value = "";
+            document.getElementById('store-customer-name').value = "";
+            document.getElementById('store-payment-method').value = "Cash";
+            
+            onStoreTableChange();
             document.getElementById('store-modal').style.display = 'flex';
         }
+        
+        function onStoreTableChange() {
+            const targetTable = document.getElementById('store-item-table').value;
+            const walkinArea = document.getElementById('store-walkin-name-area');
+            if (targetTable === "Walk-in") {
+                walkinArea.style.display = "block";
+            } else {
+                walkinArea.style.display = "none";
+            }
+        }
+        
+        function onStorePaymentMethodChange() {}
+
         function closeStoreModal() {
             document.getElementById('store-modal').style.display = 'none';
         }
@@ -1377,26 +1405,62 @@
             const unitPriceCalculated = qty > 0 ? Math.round(totalPrice / qty) : totalPrice;
             const purchaseTime = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
 
-            let customerField = "";
             let itemField = `STORE [${currentStoreCategory}]`;
 
             if (targetTable === "Walk-in") {
-                customerField = currentLang === 'en' ? "Walk-in" : "一般客";
-                const log = {
-                    date: new Date().toLocaleDateString('ja-JP'),
-                    item: itemField,
-                    name: customerField,
-                    details: `${name} × ${qty} (Unit:${unitPriceCalculated}) [Time: ${purchaseTime}] [Method: Cash]`,
-                    price: totalPrice
-                };
-                addHistory(log);
-                state.totalSales += totalPrice;
-                saveState();
+                const rawName = document.getElementById('store-customer-name').value;
+                const customerName = rawName ? rawName : (currentLang === 'en' ? "Walk-in" : "一般客");
+                const pMethod = document.getElementById('store-payment-method').value;
+
+                if (pMethod === 'Utang') {
+                    const detailsStr = `${name} × ${qty} (Unit:${unitPriceCalculated}) [Time: ${purchaseTime}] (${i18n[currentLang].status_unpaid})`;
+                    const tabItem = {
+                        id: Date.now(),
+                        date: new Date().toLocaleDateString('ja-JP'),
+                        name: customerName,
+                        item: itemField,
+                        details: detailsStr,
+                        price: totalPrice
+                    };
+                    state.unpaidTabs.push(tabItem);
+                    
+                    state.history.unshift({
+                        date: new Date().toLocaleDateString('ja-JP'),
+                        item: itemField,
+                        name: customerName,
+                        details: detailsStr,
+                        price: 0
+                    });
+                    saveState();
+                    showToast(i18n[currentLang].toast_tab_added);
+                } else if (pMethod === 'GCash') {
+                    closeStoreModal();
+                    finalLogToCommit = {
+                        tableId: null,
+                        date: new Date().toLocaleDateString('ja-JP'),
+                        item: itemField,
+                        name: customerName,
+                        details: `${name} × ${qty} (Unit:${unitPriceCalculated}) [Time: ${purchaseTime}] [Method: GCash]`,
+                        immediateAmount: totalPrice,
+                        tabAmount: 0
+                    };
+                    document.getElementById('gcash-popup-amount').innerText = totalPrice.toLocaleString();
+                    document.getElementById('gcash-popup-modal').style.display = 'flex';
+                    return;
+                } else {
+                    const log = {
+                        date: new Date().toLocaleDateString('ja-JP'),
+                        item: itemField,
+                        name: customerName,
+                        details: `${name} × ${qty} (Unit:${unitPriceCalculated}) [Time: ${purchaseTime}] [Method: Cash]`,
+                        price: totalPrice
+                    };
+                    addHistory(log);
+                    state.totalSales += totalPrice;
+                    saveState();
+                }
             } else {
                 const tableId = parseInt(targetTable);
-                const tableCustomerName = document.getElementById(`name-${tableId}`).value || i18n[currentLang].guest;
-                customerField = `${tableCustomerName} (${currentLang === 'en' ? 'Table' : 'テーブル'} ${tableId})`;
-                
                 timers[tableId].orders.push({ name: name, qty: qty, totalPrice: totalPrice });
                 updateTableOrderDisplay(tableId);
             }
@@ -1404,7 +1468,10 @@
             populateMonthFilter();
             updateSalesAndHistoryDisplay();
             closeStoreModal();
-            showToast(i18n[currentLang].alert_store_done);
+            if (targetTable === "Walk-in" && document.getElementById('store-payment-method').value === 'Utang') {
+            } else {
+                showToast(i18n[currentLang].alert_store_done);
+            }
         }
         function addHistory(logItem) {
             state.history.unshift(logItem);
@@ -1568,54 +1635,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
-            
         }
     </script>
-    <!-- Toast Notification Container -->
-<div id="toast-container" style="
-    position: fixed; 
-    bottom: 20px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    background: rgba(0, 173, 181, 0.95); 
-    color: white; 
-    padding: 12px 24px; 
-    border-radius: 30px; 
-    font-weight: bold; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
-    z-index: 9999; 
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s;
-"></div>
-
-<script>
-    // Function to show the toast notification
-    function showToast(message) {
-        const toast = document.getElementById('toast-container');
-        toast.innerText = message;
-        toast.style.display = 'block';
-        toast.style.opacity = '1';
-        
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => { toast.style.display = 'none'; }, 300);
-        }, 3000);
-    }
-
-    // Hooking into existing functions to add notifications
-    const originalSubmitStorePurchase = window.submitStorePurchase;
-    window.submitStorePurchase = function() {
-        originalSubmitStorePurchase();
-        showToast("Purchase recorded successfully!");
-    };
-
-    const originalCommitPaymentData = window.commitPaymentData;
-    window.commitPaymentData = function() {
-        originalCommitPaymentData();
-        showToast("Payment has been processed.");
-    };
-</script>
 </body>
 </html>
