@@ -13,6 +13,7 @@
             --text-color: #ffffff;
             --danger-color: #ff2e63;
             --success-color: #21bf73;
+            --purple-color: #a55eea;
         }
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -85,6 +86,8 @@
             padding: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             border-top: 5px solid var(--success-color);
+            display: flex;
+            flex-direction: column;
         }
         .table-card.vip {
             border-top: 5px solid var(--gold-color);
@@ -124,15 +127,32 @@
             box-sizing: border-box;
             margin-bottom: 10px;
         }
+        .time-schedule-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            background: #222;
+            padding: 6px 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
         .timer-display {
             font-size: 36px;
             text-align: center;
             font-family: monospace;
-            margin: 15px 0;
+            margin: 10px 0;
             background: #111;
             padding: 10px;
             border-radius: 5px;
             color: #00ffcc;
+        }
+        .timer-display.time-up {
+            color: var(--danger-color);
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0.4; }
         }
         .btn-grid {
             display: grid;
@@ -152,7 +172,28 @@
         .btn-pause { background-color: #ff9f43; color: white; }
         .btn-plus { background-color: #54a0ff; color: white; }
         .btn-stop { background-color: var(--danger-color); color: white; grid-column: span 2; }
+        .btn-clear-alarm { background-color: #fff; color: #000; grid-column: span 2; margin-top: 5px; display: none; }
         
+        .table-order-history {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #555;
+            font-size: 13px;
+        }
+        .order-tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .order-tag {
+            background: #444;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #ffd700;
+        }
+
         .store-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -208,6 +249,32 @@
         .qr-code-placeholder img {
             max-width: 100%;
             max-height: 100%;
+        }
+
+        /* サウンドボード用スタイル */
+        .soundboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .sound-btn {
+            background: linear-gradient(135deg, #3a3a3a, #2b2b2b);
+            border: 2px solid var(--purple-color);
+            border-radius: 12px;
+            padding: 50px 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .sound-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            background: var(--purple-color);
         }
         
         .sales-summary {
@@ -294,6 +361,28 @@
             gap: 10px;
             margin-top: 20px;
         }
+
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 173, 181, 0.95);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+            display: none;
+            pointer-events: none;
+        }
+        #toast-container.show {
+            display: block;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -307,6 +396,7 @@
             <nav>
                 <button id="nav-main" class="active" onclick="switchPage('main')" data-i18n="nav_tables">Tables</button>
                 <button id="nav-store" onclick="switchPage('store')" data-i18n="nav_store">STORE</button>
+                <button id="nav-soundboard" onclick="switchPage('soundboard')" data-i18n="nav_soundboard">Soundboard</button>
                 <button id="nav-history" onclick="switchPage('history')" data-i18n="nav_history">Sales & History</button>
             </nav>
             <button class="lang-btn" onclick="toggleLanguage()" id="lang-switch">JP</button>
@@ -315,7 +405,6 @@
 
     <main id="page-main" class="page active">
         <div class="tables-container">
-            <!-- Table 1 -->
             <div class="table-card" id="table-card-1">
                 <div class="table-header">
                     <span class="table-title" data-i18n="table_1">Table 1</span>
@@ -324,514 +413,26 @@
                 <input type="text" id="name-1" placeholder="Guest">
                 <label data-i18n="label_plan">Select Plan</label>
                 <select id="plan-1"></select>
+
+                <label data-i18n="label_alarm_sound">Alarm Sound</label>
+                <select id="alarm-sound-1" onchange="saveAlarmSoundSetting(1)">
+                    <option value="default">Default (Table 1)</option>
+                    <option value="table1_alarm.mp3">table1_alarm.mp3</option>
+                    <option value="table2_alarm.mp3">table2_alarm.mp3</option>
+                    <option value="table3_alarm.mp3">table3_alarm.mp3</option>
+                    <option value="time_na.mp3">time_na.mp3</option>
+                    <option value="beep">Beep Only (No File)</option>
+                </select>
+                
+                <div class="time-schedule-info">
+                    <div>▶ <span id="start-time-1">--:--</span></div>
+                    <div>■ <span id="end-time-1">--:--</span></div>
+                </div>
+
                 <div class="timer-display" id="timer-1">00:00:00</div>
                 <div class="btn-grid">
                     <button class="btn-start" onclick="startTimer(1)" data-i18n="btn_start">Start</button>
                     <button class="btn-pause" onclick="pauseTimer(1)" data-i18n="btn_pause">Pause</button>
                     <button class="btn-plus" onclick="plusHour(1)" data-i18n="btn_plus">+1 Hour</button>
                     <button class="btn-stop" onclick="stopTimer(1)" data-i18n="btn_stop">Stop / Checkout</button>
-                </div>
-            </div>
-
-            <!-- Table 2 -->
-            <div class="table-card" id="table-card-2">
-                <div class="table-header">
-                    <span class="table-title" data-i18n="table_2">Table 2</span>
-                </div>
-                <label data-i18n="label_name">Customer Name (Optional)</label>
-                <input type="text" id="name-2" placeholder="Guest">
-                <label data-i18n="label_plan">Select Plan</label>
-                <select id="plan-2"></select>
-                <div class="timer-display" id="timer-2">00:00:00</div>
-                <div class="btn-grid">
-                    <button class="btn-start" onclick="startTimer(2)" data-i18n="btn_start">Start</button>
-                    <button class="btn-pause" onclick="pauseTimer(2)" data-i18n="btn_pause">Pause</button>
-                    <button class="btn-plus" onclick="plusHour(2)" data-i18n="btn_plus">+1 Hour</button>
-                    <button class="btn-stop" onclick="stopTimer(2)" data-i18n="btn_stop">Stop / Checkout</button>
-                </div>
-            </div>
-
-            <!-- Table 3 (VIP) -->
-            <div class="table-card vip" id="table-card-3">
-                <div class="table-header">
-                    <span class="table-title" data-i18n="table_3">Table 3</span>
-                    <span class="vip-badge" data-i18n="badge_vip">VIP</span>
-                </div>
-                <label data-i18n="label_name">Customer Name (Optional)</label>
-                <input type="text" id="name-3" placeholder="Guest">
-                <label data-i18n="label_plan">Select Plan</label>
-                <select id="plan-3"></select>
-                <div class="timer-display" id="timer-3">00:00:00</div>
-                <div class="btn-grid">
-                    <button class="btn-start" onclick="startTimer(3)" data-i18n="btn_start">Start</button>
-                    <button class="btn-pause" onclick="pauseTimer(3)" data-i18n="btn_pause">Pause</button>
-                    <button class="btn-plus" onclick="plusHour(3)" data-i18n="btn_plus">+1 Hour</button>
-                    <button class="btn-stop" onclick="stopTimer(3)" data-i18n="btn_stop">Stop / Checkout</button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div id="page-store" class="page">
-        <h2 data-i18n="store_title">STORE</h2>
-        <div class="store-container">
-            <div class="store-grid">
-                <div class="store-category" onclick="openStoreModal('VAPE')">💨 VAPE</div>
-                <div class="store-category" onclick="openStoreModal('SNACK')">🍿 SNACK</div>
-                <div class="store-category" onclick="openStoreModal('DRINKS')">🍹 DRINKS</div>
-            </div>
-            
-            <div class="qr-card">
-                <span style="font-weight: bold; font-size: 14px; color: var(--accent-color);" data-i18n="qr_title">STORE QR CODE</span>
-                <div class="qr-code-placeholder">
-                    <img src="Gcash2.jpg" alt="Store QR">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="page-history" class="page">
-        <h2 data-i18n="history_title">Management</h2>
-        <div class="sales-summary">
-            <div>
-                <span style="font-size: 14px; color: #aaa;" id="sales-display-label" data-i18n="total_sales_label">Total Sales</span>
-                <div class="total-amount" id="total-sales">₱0</div>
-            </div>
-            <div>
-                <button onclick="exportCSV()" style="background-color: var(--accent-color); color:white; margin-right: 10px;" data-i18n="btn_csv">CSV Export</button>
-                <button onclick="resetSales()" style="background-color: var(--danger-color); color:white;" data-i18n="btn_reset">Reset Sales</button>
-            </div>
-        </div>
-
-        <div class="filter-area">
-            <label style="margin-bottom:0; font-size:14px; color:white; font-weight:bold;" data-i18n="label_filter_month">Filter by Month:</label>
-            <select id="month-filter" onchange="onMonthFilterChange()">
-                <option value="all" data-i18n="opt_all_months">All Months</option>
-            </select>
-        </div>
-        
-        <div class="history-header-area">
-            <h3 data-i18n="history_sub_title">Usage History (Max 2000)</h3>
-            <button onclick="clearHistory()" style="background-color: #555; color: white; font-size: 12px; padding: 6px 12px;" data-i18n="btn_clear_history">Clear History</button>
-        </div>
-        
-        <div class="history-table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th data-i18n="th_date">Date</th>
-                        <th data-i18n="th_item">Item / Table</th>
-                        <th data-i18n="th_customer">Customer</th>
-                        <th data-i18n="th_details">Details</th>
-                        <th data-i18n="th_sales">Sales</th>
-                    </tr>
-                </thead>
-                <tbody id="history-tbody"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="store-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="modal-category-title">Item Purchase</h3>
-            
-            <label data-i18n="modal_select_table">Assign to Table</label>
-            <select id="store-item-table">
-                <option value="Walk-in" data-i18n="opt_walkin">General / Walk-in</option>
-                <option value="Table 1">Table 1</option>
-                <option value="Table 2">Table 2</option>
-                <option value="Table 3 (VIP)">Table 3 (VIP)</option>
-            </select>
-
-            <label data-i18n="modal_item_name">Item Name</label>
-            <input type="text" id="store-item-name" placeholder="">
-            
-            <label data-i18n="modal_price">Price (₱)</label>
-            <input type="number" id="store-item-price" value="0">
-            
-            <label data-i18n="modal_qty">Quantity</label>
-            <input type="number" id="store-item-qty" value="1" min="1">
-            
-            <div class="modal-actions">
-                <button onclick="closeStoreModal()" style="background:#555; color:white;" data-i18n="modal_cancel">Cancel</button>
-                <button onclick="submitStorePurchase()" class="btn-start" data-i18n="modal_buy">Purchase</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let currentLang = 'en';
-        const i18n = {
-            en: {
-                nav_tables: "Tables", nav_store: "STORE", nav_history: "Sales & History",
-                table_1: "Table 1", table_2: "Table 2", table_3: "Table 3", label_name: "Customer Name (Optional)",
-                label_plan: "Select Plan", btn_start: "Start", btn_pause: "Pause", btn_plus: "+1 Hour", btn_stop: "Stop / Checkout",
-                badge_vip: "VIP", store_title: "STORE", history_title: "Management", total_sales_label: "Total Sales",
-                btn_csv: "CSV Export", btn_reset: "Reset Sales", btn_clear_history: "Clear History", history_sub_title: "Usage History (Max 2000)",
-                th_date: "Date", th_item: "Item / Table", th_customer: "Customer", th_details: "Details", th_sales: "Sales",
-                modal_item_name: "Item Name", modal_price: "Price (₱)", modal_qty: "Quantity", modal_cancel: "Cancel", modal_buy: "Purchase",
-                modal_select_table: "Assign to Table", opt_walkin: "General / Walk-in", qr_title: "STORE QR CODE",
-                alert_confirm_sales_reset: "Are you sure you want to reset Total Sales to ₱0? (History will NOT be deleted)",
-                alert_confirm_history_clear: "WARNING: Are you sure you want to delete ALL usage history? This cannot be undone.",
-                alert_ended: "Timer ended for Table ", alert_reset_done: "Reset completed.", alert_no_data: "No history data to export.", alert_store_done: "Purchase recorded.",
-                guest: "Guest", plan_ext: " + Ext 1H", label_filter_month: "Filter by Month:", opt_all_months: "All Months",
-                selected_month_sales_label: "Selected Month Sales"
-            },
-            jp: {
-                nav_tables: "テーブル状況", nav_store: "STORE", nav_history: "履歴・売上",
-                table_1: "テーブル 1", table_2: "テーブル 2", table_3: "テーブル 3", label_name: "利用者名（任意）",
-                label_plan: "プラン選択", btn_start: "開始", btn_pause: "一時停止", btn_plus: "+1時間", btn_stop: "終了・会計",
-                badge_vip: "VIP席", store_title: "ストア", history_title: "経営管理", total_sales_label: "総売上額 (全期間)",
-                btn_csv: "CSV出力", btn_reset: "売上額リセット", btn_clear_history: "履歴クリア", history_sub_title: "利用履歴 (最大2000件)",
-                th_date: "日時", th_item: "項目 / テーブル", th_customer: "顧客名", th_details: "詳細", th_sales: "売上",
-                modal_item_name: "商品名", modal_price: "価格 (₱)", modal_qty: "個数", modal_cancel: "キャンセル", modal_buy: "購入",
-                modal_select_table: "売上をテーブルに割り当て", opt_walkin: "一般 / フリー客", qr_title: "ストア用QRコード",
-                alert_confirm_sales_reset: "総売上額を ₱0 にリセットしますか？（※利用履歴は消えずに残ります）",
-                alert_confirm_history_clear: "【警告】すべての利用履歴を完全に削除しますか？この操作は取り消せません。",
-                alert_ended: "テーブル のタイマーが終了しました！: ", alert_reset_done: "リセットが完了しました。", alert_no_data: "出力する履歴データがありません。", alert_store_done: "購入を記録しました。履歴に反映されます。",
-                guest: "ゲスト", plan_ext: " + 延長1H", label_filter_month: "月別フィルタ:", opt_all_months: "すべての月",
-                selected_month_sales_label: "選択月の売上額"
-            }
-        };
-        const plans = {
-            standard: [
-                { id: "STUDENT-1", text_en: "STUDENT 1 Hour (₱140)", text_jp: "STUDENT 一時間 (₱140)", price: 140, time: 60 },
-                { id: "STUDENT-2", text_en: "STUDENT 2 Hours (₱260)", text_jp: "STUDENT 二時間 (₱260)", price: 260, time: 120 },
-                { id: "REGULAR-1", text_en: "REGULAR 1 Hour (₱160)", text_jp: "REGULAR 一時間 (₱160)", price: 160, time: 60 },
-                { id: "REGULAR-2", text_en: "REGULAR 2 Hours (₱300)", text_jp: "REGULAR 二時間 (₱300)", price: 300, time: 120 },
-                { id: "DIRTS", text_en: "BILLIARD WITH DIRTS (₱250)", text_jp: "BILLIARD WITH DIRTS (₱250)", price: 250, time: 60 }
-            ],
-            vip: [
-                { id: "VIP-1", text_en: "VIP 1 Hour (₱180)", text_jp: "VIP 一時間 (₱180)", price: 180, time: 60 },
-                { id: "VIP-2", text_en: "VIP 2 Hours (₱350)", text_jp: "VIP 二時間 (₱350)", price: 350, time: 120 }
-            ]
-        };
-        let state = { totalSales: 0, history: [] };
-        let timers = {
-            1: { remaining: 0, interval: null, active: false, startTime: null, price: 0, planName: "" },
-            2: { remaining: 0, interval: null, active: false, startTime: null, price: 0, planName: "" },
-            3: { remaining: 0, interval: null, active: false, startTime: null, price: 0, planName: "" }
-        };
-        window.onload = function() {
-            if (localStorage.getItem('taco_loco_state')) {
-                state = JSON.parse(localStorage.getItem('taco_loco_state'));
-            }
-            updateLanguageDOM();
-            populateMonthFilter();
-            updateSalesAndHistoryDisplay();
-        };
-        function saveState() {
-            localStorage.setItem('taco_loco_state', JSON.stringify(state));
-        }
-        function toggleLanguage() {
-            currentLang = (currentLang === 'en') ? 'jp' : 'en';
-            document.getElementById('lang-switch').innerText = (currentLang === 'en') ? 'JP' : 'EN';
-            updateLanguageDOM();
-            
-            const currentFilter = document.getElementById('month-filter').value;
-            populateMonthFilter();
-            document.getElementById('month-filter').value = currentFilter;
-            updateSalesAndHistoryDisplay();
-        }
-        function updateLanguageDOM() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.innerText = i18n[currentLang][key];
-            });
-            updateSelectOptions(1, 'standard');
-            updateSelectOptions(2, 'standard');
-            updateSelectOptions(3, 'vip');
-        }
-        function updateSelectOptions(tableId, planType) {
-            const select = document.getElementById(`plan-${tableId}`);
-            if (timers[tableId].active) return;
-            const currentVal = select.value;
-            select.innerHTML = "";
-            plans[planType].forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.id;
-                opt.dataset.price = p.price;
-                opt.dataset.time = p.time;
-                opt.innerText = (currentLang === 'en') ? p.text_en : p.text_jp;
-                select.appendChild(opt);
-            });
-            if (currentVal) select.value = currentVal;
-        }
-        function switchPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-            document.getElementById(`page-${pageId}`).classList.add('active');
-            document.getElementById(`nav-${pageId == 'main' ? 'main' : pageId}`).classList.add('active');
-        }
-        function playAlarmSound() {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const duration = 0.3;
-            for(let i=0; i<3; i++) {
-                setTimeout(() => {
-                    const oscillator = audioCtx.createOscillator();
-                    const gainNode = audioCtx.createGain();
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-                    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-                    oscillator.start();
-                    oscillator.stop(audioCtx.currentTime + duration);
-                }, i * 400);
-            }
-        }
-        function startTimer(tableId) {
-            if (timers[tableId].active) return;
-            const nameInput = document.getElementById(`name-${tableId}`).value || i18n[currentLang].guest;
-            const planSelect = document.getElementById(`plan-${tableId}`);
-            const selectedOption = planSelect.options[planSelect.selectedIndex];
-            if (timers[tableId].remaining <= 0) {
-                timers[tableId].remaining = parseInt(selectedOption.dataset.time) * 60;
-                timers[tableId].price = parseInt(selectedOption.dataset.price);
-                timers[tableId].planName = selectedOption.text;
-                timers[tableId].startTime = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-                document.getElementById(`name-${tableId}`).disabled = true;
-                document.getElementById(`plan-${tableId}`).disabled = true;
-            }
-            timers[tableId].active = true;
-            timers[tableId].interval = setInterval(() => {
-                if (timers[tableId].remaining > 0) {
-                    timers[tableId].remaining--;
-                    updateTimerDisplay(tableId);
-                    if (timers[tableId].remaining === 0) {
-                        playAlarmSound();
-                        alert(`${i18n[currentLang].alert_ended} ${tableId}`);
-                    }
-                }
-            }, 1000);
-        }
-        function pauseTimer(tableId) {
-            if (!timers[tableId].active) return;
-            clearInterval(timers[tableId].interval);
-            timers[tableId].active = false;
-        }
-        function plusHour(tableId) {
-            timers[tableId].remaining += 3600;
-            let extendPrice = (tableId === 3) ? 180 : 150;
-            timers[tableId].price += extendPrice;
-            timers[tableId].planName += i18n[currentLang].plan_ext;
-            updateTimerDisplay(tableId);
-        }
-        function stopTimer(tableId) {
-            if (timers[tableId].startTime === null) return;
-            clearInterval(timers[tableId].interval);
-            const endTime = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-            const customerName = document.getElementById(`name-${tableId}`).value || i18n[currentLang].guest;
-            const log = {
-                date: new Date().toLocaleDateString('ja-JP'), // Format: YYYY/MM/DD
-                item: `${currentLang === 'en' ? 'Table' : 'テーブル'} ${tableId}`,
-                name: customerName,
-                details: `Plan: ${timers[tableId].planName} [Start: ${timers[tableId].startTime} ~ End: ${endTime}]`,
-                price: timers[tableId].price
-            };
-            addHistory(log);
-            state.totalSales += timers[tableId].price;
-            saveState();
-            
-            // UIを最新データで更新
-            populateMonthFilter();
-            updateSalesAndHistoryDisplay();
-            
-            timers[tableId] = { remaining: 0, interval: null, active: false, startTime: null, price: 0, planName: "" };
-            updateTimerDisplay(tableId);
-            document.getElementById(`name-${tableId}`).disabled = false;
-            document.getElementById(`plan-${tableId}`).disabled = false;
-            document.getElementById(`name-${tableId}`).value = "";
-        }
-        function updateTimerDisplay(tableId) {
-            const rem = timers[tableId].remaining;
-            const hrs = String(Math.floor(rem / 3600)).padStart(2, '0');
-            const mins = String(Math.floor((rem % 3600) / 60)).padStart(2, '0');
-            const secs = String(rem % 60).padStart(2, '0');
-            document.getElementById(`timer-${tableId}`).innerText = `${hrs}:${mins}:${secs}`;
-        }
-        let currentStoreCategory = "";
-        function openStoreModal(category) {
-            currentStoreCategory = category;
-            document.getElementById('modal-category-title').innerText = `${category}`;
-            document.getElementById('store-item-table').selectedIndex = 0;
-            document.getElementById('store-item-name').value = "";
-            document.getElementById('store-item-price').value = "0";
-            document.getElementById('store-item-qty').value = "1";
-            document.getElementById('store-modal').style.display = 'flex';
-        }
-        function closeStoreModal() {
-            document.getElementById('store-modal').style.display = 'none';
-        }
-        function submitStorePurchase() {
-            const targetTable = document.getElementById('store-item-table').value;
-            const name = document.getElementById('store-item-name').value || "Item";
-            const price = parseInt(document.getElementById('store-item-price').value) || 0;
-            const qty = parseInt(document.getElementById('store-item-qty').value) || 1;
-            const totalPrice = price * qty;
-            
-            const customerField = targetTable === "Walk-in" ? (currentLang === 'en' ? "Walk-in" : "一般客") : targetTable;
-            const purchaseTime = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-
-            const log = {
-                date: new Date().toLocaleDateString('ja-JP'),
-                item: `STORE [${currentStoreCategory}]`,
-                name: customerField,
-                details: `${name} × ${qty} (Unit:${price}) [Time: ${purchaseTime}]`,
-                price: totalPrice
-            };
-            addHistory(log);
-            state.totalSales += totalPrice;
-            saveState();
-            
-            populateMonthFilter();
-            updateSalesAndHistoryDisplay();
-            
-            closeStoreModal();
-            alert(i18n[currentLang].alert_store_done);
-        }
-        function addHistory(logItem) {
-            state.history.unshift(logItem);
-            if (state.history.length > 2000) {
-                state.history.pop();
-            }
-        }
-
-        // 月別フィルタ用の選択肢を自動生成する関数
-        function populateMonthFilter() {
-            const filterSelect = document.getElementById('month-filter');
-            const currentSelected = filterSelect.value || "all";
-            
-            filterSelect.innerHTML = `<option value="all">${i18n[currentLang].opt_all_months}</option>`;
-            
-            // 履歴データから存在する月(YYYY/MM)を一意に抽出
-            const months = [];
-            state.history.forEach(log => {
-                // log.date は "2026/06/25" のような形式を想定
-                const parts = log.date.split('/');
-                if (parts.length >= 2) {
-                    const yearMonth = `${parts[0]}/${parts[1]}`; // "2026/06"
-                    if (!months.includes(yearMonth)) {
-                        months.push(yearMonth);
-                    }
-                }
-            });
-            
-            // 新しい順にソートして追加
-            months.sort((a, b) => b.localeCompare(a));
-            months.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.innerText = m;
-                filterSelect.appendChild(opt);
-            });
-            
-            // 前の選択状態を復元（存在すれば）
-            if ([...filterSelect.options].some(o => o.value === currentSelected)) {
-                filterSelect.value = currentSelected;
-            } else {
-                filterSelect.value = "all";
-            }
-        }
-
-        function onMonthFilterChange() {
-            updateSalesAndHistoryDisplay();
-        }
-
-        // 現在のフィルタ条件に合う履歴データを取得するヘルパー
-        function getFilteredHistory() {
-            const filterValue = document.getElementById('month-filter').value;
-            if (filterValue === 'all') {
-                return state.history;
-            }
-            return state.history.filter(log => log.date.startsWith(filterValue));
-        }
-
-        function updateSalesAndHistoryDisplay() {
-            const filteredData = getFilteredHistory();
-            const filterValue = document.getElementById('month-filter').value;
-            
-            // 売上表示ラベルと合計金額の更新
-            if (filterValue === 'all') {
-                document.getElementById('sales-display-label').innerText = i18n[currentLang].total_sales_label;
-                document.getElementById('total-sales').innerText = `₱${state.totalSales.toLocaleString()}`;
-            } else {
-                document.getElementById('sales-display-label').innerText = `${i18n[currentLang].selected_month_sales_label} (${filterValue})`;
-                const monthlyTotal = filteredData.reduce((sum, log) => sum + log.price, 0);
-                document.getElementById('total-sales').innerText = `₱${monthlyTotal.toLocaleString()}`;
-            }
-            
-            // テーブル描画
-            const tbody = document.getElementById('history-tbody');
-            tbody.innerHTML = "";
-            filteredData.forEach(log => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${log.date}</td>
-                    <td><strong>${log.item}</strong></td>
-                    <td>${log.name}</td>
-                    <td style="font-size:12px; color:#ccc;">${log.details}</td>
-                    <td style="color:var(--gold-color); font-weight:bold;">₱${log.price.toLocaleString()}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        function resetSales() {
-            const confirmReset = confirm(i18n[currentLang].alert_confirm_sales_reset);
-            if (confirmReset) {
-                state.totalSales = 0;
-                saveState();
-                updateSalesAndHistoryDisplay();
-                alert(i18n[currentLang].alert_reset_done);
-            }
-        }
-
-        function clearHistory() {
-            const confirmClear = confirm(i18n[currentLang].alert_confirm_history_clear);
-            if (confirmClear) {
-                state.history = [];
-                saveState();
-                populateMonthFilter();
-                updateSalesAndHistoryDisplay();
-                alert(i18n[currentLang].alert_reset_done);
-            }
-        }
-
-        function exportCSV() {
-            const filteredData = getFilteredHistory();
-            if (filteredData.length === 0) {
-                alert(i18n[currentLang].alert_no_data);
-                return;
-            }
-            let csvContent = "\uFEFF";
-            if (currentLang === 'en') {
-                csvContent += "Date,Item/Table,Customer,Details,Sales\n";
-            } else {
-                csvContent += "日時,項目/テーブル,顧客名,詳細,売上\n";
-            }
-            filteredData.forEach(log => {
-                let row = [
-                    `"${log.date}"`,
-                    `"${log.item}"`,
-                    `"${log.name}"`,
-                    `"${log.details.replace(/"/g, '""')}"`,
-                    log.price
-                ].join(",");
-                csvContent += row + "\n";
-            });
-            const filterValue = document.getElementById('month-filter').value;
-            const fileSuffix = filterValue === 'all' ? 'all' : filterValue.replace('/', '-');
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `taco_loco_sales_${fileSuffix}_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
-</body>
-</html>
+                    <button class="btn-
