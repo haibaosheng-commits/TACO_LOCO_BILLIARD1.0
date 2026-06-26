@@ -14,6 +14,8 @@
             --danger-color: #ff2e63;
             --success-color: #21bf73;
             --purple-color: #a55eea;
+            --orange-color: #ff9f43;
+            --blue-color: #54a0ff;
         }
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -51,7 +53,7 @@
             background-color: var(--card-bg);
             color: white;
             border: 1px solid var(--accent-color);
-            padding: 10px 20px;
+            padding: 10px 15px;
             cursor: pointer;
             font-weight: bold;
             border-radius: 5px;
@@ -193,6 +195,11 @@
             font-size: 12px;
             color: #ffd700;
         }
+        .order-tag.total-tag {
+            background: var(--accent-color);
+            color: white;
+            font-weight: bold;
+        }
 
         .store-container {
             display: grid;
@@ -251,7 +258,6 @@
             max-height: 100%;
         }
 
-        /* サウンドボード用スタイル */
         .soundboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -288,10 +294,18 @@
             flex-wrap: wrap;
             gap: 15px;
         }
+        .sales-widgets {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
         .total-amount {
             font-size: 28px;
             color: var(--gold-color);
             font-weight: bold;
+        }
+        .total-amount.unpaid {
+            color: var(--orange-color);
         }
         .filter-area {
             background: #333;
@@ -322,8 +336,9 @@
             border-radius: 10px;
             padding: 20px;
             overflow-x: auto;
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: auto;
+            margin-bottom: 30px;
         }
         table {
             width: 100%;
@@ -352,7 +367,7 @@
             padding: 25px;
             border-radius: 10px;
             width: 90%;
-            max-width: 400px;
+            max-width: 420px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
         .modal-actions {
@@ -360,6 +375,9 @@
             justify-content: flex-end;
             gap: 10px;
             margin-top: 20px;
+        }
+        .modal-actions button {
+            flex: 1;
         }
 
         #toast-container {
@@ -383,6 +401,79 @@
             display: block;
             opacity: 1;
         }
+        .btn-paid-status {
+            background-color: var(--orange-color);
+            color: white;
+            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 4px;
+        }
+        .utang-box-summary {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .utang-search-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #333;
+            padding: 10px 15px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 250px;
+        }
+        .utang-search-area input {
+            margin-bottom: 0;
+        }
+        .payment-method-selectors {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .method-btn {
+            background: #444;
+            color: white;
+            border: 2px solid transparent;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .method-btn.selected {
+            border-color: var(--accent-color);
+            background: #333;
+        }
+        .method-btn.selected#method-cash {
+            color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        .method-btn.selected#method-gcash {
+            color: var(--blue-color);
+            border-color: var(--blue-color);
+        }
+        .gcash-popup-qr {
+            width: 200px;
+            height: 200px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gcash-popup-qr img {
+            max-width: 100%;
+            max-height: 100%;
+        }
     </style>
 </head>
 <body>
@@ -397,6 +488,7 @@
                 <button id="nav-main" class="active" onclick="switchPage('main')" data-i18n="nav_tables">Tables</button>
                 <button id="nav-store" onclick="switchPage('store')" data-i18n="nav_store">STORE</button>
                 <button id="nav-soundboard" onclick="switchPage('soundboard')" data-i18n="nav_soundboard">Soundboard</button>
+                <button id="nav-utang" onclick="switchPage('utang')" data-i18n="nav_utang">Utang</button>
                 <button id="nav-history" onclick="switchPage('history')" data-i18n="nav_history">Sales & History</button>
             </nav>
             <button class="lang-btn" onclick="toggleLanguage()" id="lang-switch">JP</button>
@@ -562,12 +654,43 @@
         </div>
     </div>
 
+    <div id="page-utang" class="page">
+        <h2 data-i18n="title_unpaid_utang">📋 Utang Management</h2>
+        <div class="utang-box-summary">
+            <div>
+                <span style="font-size: 14px; color: #aaa;" data-i18n="label_total_unpaid">Total Debt</span>
+                <div class="total-amount unpaid" id="total-unpaid" style="font-size: 36px; margin-top: 5px;">₱0</div>
+            </div>
+            <div class="utang-search-area">
+                <label style="margin-bottom:0; font-size:14px; color:white; font-weight:bold; white-space:nowrap;" data-i18n="label_search_customer">Search Customer:</label>
+                <input type="text" id="utang-search-input" oninput="onUtangSearchChange()" placeholder="Enter name...">
+            </div>
+        </div>
+        
+        <div class="history-table-container" style="max-height: 600px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-i18n="th_date">Date</th>
+                        <th data-i18n="th_customer">Customer</th>
+                        <th data-i18n="th_details">Details</th>
+                        <th data-i18n="th_sales">Amount</th>
+                        <th style="text-align: center;" data-i18n="th_action">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="unpaid-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
     <div id="page-history" class="page">
         <h2 data-i18n="history_title">Management</h2>
         <div class="sales-summary">
-            <div>
-                <span style="font-size: 14px; color: #aaa;" id="sales-display-label" data-i18n="total_sales_label">Total Sales</span>
-                <div class="total-amount" id="total-sales">₱0</div>
+            <div class="sales-widgets">
+                <div>
+                    <span style="font-size: 14px; color: #aaa;" id="sales-display-label" data-i18n="total_sales_label">Total Sales</span>
+                    <div class="total-amount" id="total-sales">₱0</div>
+                </div>
             </div>
             <div>
                 <button onclick="exportCSV()" style="background-color: var(--accent-color); color:white; margin-right: 10px;" data-i18n="btn_csv">CSV Export</button>
@@ -634,13 +757,62 @@
         </div>
     </div>
 
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <h3 style="margin-top: 0;" data-i18n="modal_checkout_title">Select Payment Method</h3>
+            <div style="font-size: 24px; margin: 10px 0; font-weight: bold; color: var(--gold-color);">
+                TOTAL: ₱<span id="checkout-modal-amount">0</span>
+            </div>
+            
+            <label style="text-align: left; font-weight: bold; margin-bottom: 5px;" data-i18n="lbl_select_base_method">Payment Method (For Cash amount)</label>
+            <div class="payment-method-selectors">
+                <button id="method-cash" class="method-btn selected" onclick="selectBasePaymentMethod('Cash')">💵 Cash</button>
+                <button id="method-gcash" class="method-btn" onclick="selectBasePaymentMethod('GCash')">📱 GCash</button>
+            </div>
+            
+            <div style="background: #222; padding: 12px; border-radius: 6px; margin-bottom: 20px; text-align: left;">
+                <label style="color: var(--orange-color); font-weight: bold;" data-i18n="lbl_tab_amount_input">Utang Amount</label>
+                <input type="number" id="checkout-tab-amount" value="0" style="font-size: 18px; color: var(--orange-color); font-weight: bold; background: #111; margin-bottom: 5px;" oninput="onCheckoutTabInputChanged()">
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="setCheckoutTabRatio(1)" id="btn-ratio-all" style="flex:1; background: #444; color:white; font-size:11px; padding: 4px;">All Utang</button>
+                    <button onclick="setCheckoutTabRatio(0.5)" id="btn-ratio-half" style="flex:1; background: #444; color:white; font-size:11px; padding: 4px;">Half Utang</button>
+                    <button onclick="setCheckoutTabRatio(0)" id="btn-ratio-none" style="flex:1; background: #444; color:white; font-size:11px; padding: 4px;">No Utang</button>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="flex-direction: column; gap: 10px;">
+                <button onclick="processCheckoutWithTab()" class="btn-start" style="width:100%; padding: 12px; background-color: var(--accent-color);" data-i18n="btn_confirm_payment">Confirm Payment</button>
+                <button onclick="closeCheckoutModal()" style="background:#555; color:white; width:100%; padding: 8px;" data-i18n="modal_cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gcash-popup-modal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <h3 style="margin-top: 0; color: var(--blue-color);">📱 GCash Payment</h3>
+            <p style="font-size: 14px; color: #ccc;" data-i18n="gcash_pop_scan">Please scan the QR code to pay</p>
+            
+            <div class="gcash-popup-qr">
+                <img src="Gcash2.jpg" alt="GCash QR">
+            </div>
+            
+            <div style="font-size: 20px; font-weight: bold; margin: 10px 0; color: var(--gold-color);">
+                Amount: ₱<span id="gcash-popup-amount">0</span>
+            </div>
+
+            <div class="modal-actions" style="flex-direction: column; gap: 10px; margin-top: 15px;">
+                <button onclick="completeGcashPaymentFlow()" class="btn-start" style="width:100%; padding: 12px; background-color: var(--success-color);" data-i18n="btn_payment_complete">Payment Completed</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container"></div>
 
     <script>
         let currentLang = 'en';
         const i18n = {
             en: {
-                nav_tables: "Tables", nav_store: "STORE", nav_history: "Sales & History", nav_soundboard: "Soundboard",
+                nav_tables: "Tables", nav_store: "STORE", nav_history: "Sales & History", nav_soundboard: "Soundboard", nav_utang: "Utang",
                 table_1: "Table 1", table_2: "Table 2", table_3: "Table 3", label_name: "Customer Name (Optional)",
                 label_plan: "Select Plan", btn_start: "Start", btn_pause: "Pause", btn_plus: "+1 Hour", btn_stop: "Stop / Checkout",
                 badge_vip: "VIP", store_title: "STORE", history_title: "Management", total_sales_label: "Total Sales",
@@ -648,16 +820,22 @@
                 th_date: "Date", th_item: "Item / Table", th_customer: "Customer", th_details: "Details", th_sales: "Sales",
                 modal_item_name: "Item Name", modal_price: "Price (₱)", modal_qty: "Quantity", modal_cancel: "Cancel", modal_buy: "Purchase",
                 modal_select_table: "Assign to Table", opt_walkin: "General / Walk-in", qr_title: "STORE QR CODE",
-                alert_confirm_sales_reset: "Are you sure you want to reset Total Sales to ₱0? (History will NOT be deleted)",
+                alert_confirm_sales_reset: "Are you sure you want to reset Total Sales to ₱0? (History & Utang data will NOT be deleted)",
                 alert_confirm_history_clear: "WARNING: Are you sure you want to delete ALL usage history? This cannot be undone.",
                 alert_reset_done: "Reset completed.", alert_no_data: "No history data to export.", alert_store_done: "Purchase recorded.",
                 guest: "Guest", plan_ext: " + Ext 1H", label_filter_month: "Filter by Month:", opt_all_months: "All Months",
                 selected_month_sales_label: "Selected Month Sales", label_table_orders: "🛒 Store Orders:",
                 lbl_unit_price: "Unit Price (₱)", lbl_total_price: "Total Price (₱)", category_other: "📁 OTHER",
-                label_alarm_sound: "Alarm Sound"
+                label_alarm_sound: "Alarm Sound",
+                label_total_unpaid: "Total Debt", title_unpaid_utang: "📋 Utang Management", th_action: "Action",
+                modal_checkout_title: "Checkout & Payment", btn_confirm_payment: "Confirm Payment",
+                toast_tab_added: "Utang recorded successfully.", toast_tab_cleared: "Utang collected and moved to Sales.", status_unpaid: "Utang",
+                lbl_tab_amount_input: "Utang Amount (Amount to delay payment)", btn_pay_now: "Paid Now", btn_pay_tab: "Put on Utang",
+                label_search_customer: "Search Customer:", lbl_select_base_method: "Payment Method (For Now-Paid amount)",
+                gcash_pop_scan: "Please scan the QR code below to complete the payment.", btn_payment_complete: "Payment Completed"
             },
             jp: {
-                nav_tables: "テーブル状況", nav_store: "STORE", nav_history: "履歴・売上", nav_soundboard: "サウンドボード",
+                nav_tables: "テーブル状況", nav_store: "STORE", nav_history: "履歴・売上", nav_soundboard: "サウンドボード", nav_utang: "Utang (ツケ管理)",
                 table_1: "テーブル 1", table_2: "テーブル 2", table_3: "テーブル 3", label_name: "利用者名（任意）",
                 label_plan: "プラン選択", btn_start: "開始", btn_pause: "一時停止", btn_plus: "+1時間", btn_stop: "終了・会計",
                 badge_vip: "VIP席", store_title: "ストア", history_title: "経営管理", total_sales_label: "総売上額 (全期間)",
@@ -665,13 +843,19 @@
                 th_date: "日時", th_item: "項目 / テーブル", th_customer: "顧客名", th_details: "詳細", th_sales: "売上",
                 modal_item_name: "商品名", modal_price: "価格 (₱)", modal_qty: "個数", modal_cancel: "キャンセル", modal_buy: "購入",
                 modal_select_table: "売上をテーブルに割り当て", opt_walkin: "一般 / フリー客", qr_title: "ストア用QRコード",
-                alert_confirm_sales_reset: "総売上額を ₱0 にリセットしますか？（※利用履歴は消えずに残ります）",
+                alert_confirm_sales_reset: "総売上額を ₱0 にリセットしますか？（※履歴やUtangのデータは残ります）",
                 alert_confirm_history_clear: "【警告】すべての利用履歴を完全に削除しますか？この操作は取り消せません。",
                 alert_reset_done: "リセットが完了しました。", alert_no_data: "出力する履歴データがありません。", alert_store_done: "購入を記録しました。",
                 guest: "ゲスト", plan_ext: " + 延長1H", label_filter_month: "月別フィルタ:", opt_all_months: "すべての月",
                 selected_month_sales_label: "選択月の売上額", label_table_orders: "🛒 ストア購入履歴:",
                 lbl_unit_price: "単価 (₱)", lbl_total_price: "合計金額 (₱)", category_other: "📁 その他",
-                label_alarm_sound: "アラーム音設定"
+                label_alarm_sound: "アラーム音設定",
+                label_total_unpaid: "未回収の借金総額", title_unpaid_utang: "📋 Utang（ツケ）管理一覧", th_action: "操作",
+                modal_checkout_title: "お会計・支払い方法の確定", btn_confirm_payment: "この内容で精算を確定する",
+                toast_tab_added: "Utangデータを記録しました。", toast_tab_cleared: "Utangが回収され、売上に反映されました。", status_unpaid: "未清算 (Utang)",
+                lbl_tab_amount_input: "Utangにする金額（後日払いの金額）", btn_pay_now: "その場で精算", btn_pay_tab: "Utangにする",
+                label_search_customer: "顧客検索:", lbl_select_base_method: "お支払い方法（即時精算分）",
+                gcash_pop_scan: "以下のQRコードをスキャンして支払いを完了してください。", btn_payment_complete: "支払い完了"
             }
         };
         const plans = {
@@ -689,17 +873,24 @@
                 { id: "TEST-5S-VIP", text_en: "【TEST】5 Seconds (₱0)", text_jp: "【テスト】5秒タイマー (₱0)", price: 0, time: 0.0833 }
             ]
         };
-        let state = { totalSales: 0, history: [] };
+        
+        let state = { totalSales: 0, history: [], unpaidTabs: [] };
+        
         let timers = {
             1: { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null },
             2: { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null },
             3: { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null }
         };
+        
+        let pendingCheckout = null;
+        let selectedBaseMethod = "Cash"; // Cash or GCash
+        let finalLogToCommit = null; // GCash決済完了時にコミットするための保存用バッファ
+
         window.onload = function() {
             if (localStorage.getItem('taco_loco_state')) {
                 state = JSON.parse(localStorage.getItem('taco_loco_state'));
+                if (!state.unpaidTabs) state.unpaidTabs = [];
             }
-            // 各テーブルのアラーム設定を復元
             for (let i = 1; i <= 3; i++) {
                 const savedSound = localStorage.getItem(`taco_loco_alarm_${i}`);
                 if (savedSound) {
@@ -738,6 +929,10 @@
             populateMonthFilter();
             document.getElementById('month-filter').value = currentFilter;
             updateSalesAndHistoryDisplay();
+            
+            for(let i = 1; i <= 3; i++) {
+                updateTableOrderDisplay(i);
+            }
         }
         function updateLanguageDOM() {
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -746,6 +941,10 @@
             });
             document.getElementById('modal-label-unit-price').innerText = i18n[currentLang].lbl_unit_price;
             document.getElementById('modal-label-total-price').innerText = i18n[currentLang].lbl_total_price;
+            
+            document.getElementById('btn-ratio-all').innerText = currentLang === 'en' ? 'All Utang' : '全額Utang';
+            document.getElementById('btn-ratio-half').innerText = currentLang === 'en' ? 'Half Utang' : '半分Utang';
+            document.getElementById('btn-ratio-none').innerText = currentLang === 'en' ? 'No Utang' : 'Utangなし';
             
             updateSelectOptions(1, 'standard');
             updateSelectOptions(2, 'standard');
@@ -773,22 +972,17 @@
             document.getElementById(`nav-${pageId == 'main' ? 'main' : pageId}`).classList.add('active');
         }
 
-        /* アラーム音源 */
         function playTableAlarmSound(tableId) {
             if (timers[tableId].audioObj) {
                 timers[tableId].audioObj.pause();
                 timers[tableId].audioObj.currentTime = 0;
             }
-
             let soundSetting = document.getElementById(`alarm-sound-${tableId}`).value;
-            
-            // デフォルト設定の場合のフォールバック
             if (soundSetting === "default") {
                 if (tableId === 1) soundSetting = "table1_alarm.mp3";
                 else if (tableId === 2) soundSetting = "table2_alarm.mp3";
                 else if (tableId === 3) soundSetting = "table3_alarm.mp3";
             }
-
             if (soundSetting !== "beep") {
                 timers[tableId].audioObj = new Audio(soundSetting);
                 timers[tableId].audioObj.play().catch(e => {
@@ -811,7 +1005,6 @@
             oscillator.stop(audioCtx.currentTime + 0.4);
         }
 
-        /* サウンドボード */
         function playBoardSound(type) {
             let file = "";
             if (type === 'timena') file = "time_na.mp3";
@@ -826,13 +1019,44 @@
             }
         }
 
+        function updateTableOrderDisplay(tableId) {
+            const tagContainer = document.getElementById(`order-history-${tableId}`);
+            tagContainer.innerHTML = "";
+            let totalAmount = 0;
+
+            if (timers[tableId].startTime !== null) {
+                const tablePrice = timers[tableId].price;
+                totalAmount += tablePrice;
+                const tableTag = document.createElement('span');
+                tableTag.className = 'order-tag';
+                tableTag.innerText = `${currentLang === 'en' ? 'Table Fee' : 'テーブル代'}: ₱${tablePrice}`;
+                tagContainer.appendChild(tableTag);
+            }
+
+            if (timers[tableId].orders && timers[tableId].orders.length > 0) {
+                timers[tableId].orders.forEach(o => {
+                    totalAmount += o.totalPrice;
+                    const tag = document.createElement('span');
+                    tag.className = 'order-tag';
+                    tag.innerText = `${o.name} × ${o.qty} (₱${o.totalPrice})`;
+                    tagContainer.appendChild(tag);
+                });
+            }
+
+            if (timers[tableId].startTime !== null || (timers[tableId].orders && timers[tableId].orders.length > 0)) {
+                const totalTag = document.createElement('span');
+                totalTag.className = 'order-tag total-tag';
+                totalTag.innerText = `TOTAL: ₱${totalAmount}`;
+                tagContainer.appendChild(totalTag);
+            }
+        }
+
         function startTimer(tableId) {
             if (timers[tableId].active) return;
             const planSelect = document.getElementById(`plan-${tableId}`);
             const selectedOption = planSelect.options[planSelect.selectedIndex];
             
             if (timers[tableId].remaining <= 0) {
-                // テスト用タイマー（小数点）を正しく処理するため parseFloat に修正
                 const totalSeconds = Math.round(parseFloat(selectedOption.dataset.time) * 60);
                 timers[tableId].remaining = totalSeconds;
                 timers[tableId].price = parseInt(selectedOption.dataset.price);
@@ -851,6 +1075,8 @@
                 document.getElementById(`plan-${tableId}`).disabled = true;
             }
             timers[tableId].active = true;
+            updateTableOrderDisplay(tableId);
+
             timers[tableId].interval = setInterval(() => {
                 if (timers[tableId].remaining > 0) {
                     timers[tableId].remaining--;
@@ -879,7 +1105,7 @@
                 timers[tableId].alarmInterval = null;
             }
             if (timers[tableId].audioObj) {
-                timers[tableId].audioObj.pause();
+                timers[tableObj].audioObj.pause();
                 timers[tableId].audioObj.currentTime = 0;
             }
             document.getElementById(`timer-${tableId}`).classList.remove('time-up');
@@ -888,7 +1114,7 @@
 
         function clearTableOrders(tableId) {
             timers[tableId].orders = [];
-            document.getElementById(`order-history-${tableId}`).innerHTML = "";
+            updateTableOrderDisplay(tableId);
             showToast(currentLang === 'en' ? `Table ${tableId} store history cleared.` : `テーブル ${tableId} の購入履歴をクリアしました。`);
         }
 
@@ -912,7 +1138,9 @@
                 document.getElementById(`end-time-${tableId}`).innerText = timers[tableId].endTime;
             }
             updateTimerDisplay(tableId);
+            updateTableOrderDisplay(tableId);
         }
+
         function stopTimer(tableId) {
             if (timers[tableId].startTime === null) return;
             clearInterval(timers[tableId].interval);
@@ -920,33 +1148,195 @@
             
             const endTimeActual = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
             const customerName = document.getElementById(`name-${tableId}`).value || i18n[currentLang].guest;
-            
-            const finalPrice = timers[tableId].price;
+            let storeTotal = timers[tableId].orders.reduce((sum, o) => sum + o.totalPrice, 0);
+            const finalPrice = timers[tableId].price + storeTotal;
 
-            const log = {
+            let storeDetails = timers[tableId].orders.map(o => `${o.name}×${o.qty}`).join(", ");
+            let detailsLog = `Plan: ${timers[tableId].planName} [Start: ${timers[tableId].startTime} ~ End: ${endTimeActual}]`;
+            if (storeDetails) {
+                detailsLog += ` + Orders: ${storeDetails}`;
+            }
+
+            pendingCheckout = {
+                tableId: tableId,
                 date: new Date().toLocaleDateString('ja-JP'),
                 item: `${currentLang === 'en' ? 'Table' : 'テーブル'} ${tableId}`,
                 name: customerName,
-                details: `Plan: ${timers[tableId].planName} [Start: ${timers[tableId].startTime} ~ End: ${endTimeActual}]`,
+                details: detailsLog,
                 price: finalPrice
             };
-            addHistory(log);
-            state.totalSales += finalPrice;
-            saveState();
+
+            selectBasePaymentMethod('Cash'); 
+            document.getElementById('checkout-modal-amount').innerText = finalPrice.toLocaleString();
+            document.getElementById('checkout-tab-amount').value = 0; 
+            document.getElementById('checkout-tab-amount').max = finalPrice;
+            document.getElementById('checkout-modal').style.display = 'flex';
+        }
+
+        function selectBasePaymentMethod(method) {
+            selectedBaseMethod = method;
+            document.getElementById('method-cash').classList.remove('selected');
+            document.getElementById('method-gcash').classList.remove('selected');
             
+            if (method === 'Cash') {
+                document.getElementById('method-cash').classList.add('selected');
+            } else {
+                document.getElementById('method-gcash').classList.add('selected');
+            }
+        }
+
+        function setCheckoutTabRatio(ratio) {
+            if (!pendingCheckout) return;
+            const maxVal = pendingCheckout.price;
+            document.getElementById('checkout-tab-amount').value = Math.round(maxVal * ratio);
+        }
+
+        function onCheckoutTabInputChanged() {
+            if (!pendingCheckout) return;
+            let val = parseInt(document.getElementById('checkout-tab-amount').value) || 0;
+            if (val > pendingCheckout.price) {
+                document.getElementById('checkout-tab-amount').value = pendingCheckout.price;
+            }
+            if (val < 0) {
+                document.getElementById('checkout-tab-amount').value = 0;
+            }
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').style.display = 'none';
+            if(pendingCheckout) {
+                const tId = pendingCheckout.tableId;
+                timers[tId].active = false;
+            }
+            pendingCheckout = null;
+        }
+
+        function processCheckoutWithTab() {
+            if(!pendingCheckout) return;
+            const tId = pendingCheckout.tableId;
+            const total = pendingCheckout.price;
+            
+            let tabAmount = parseInt(document.getElementById('checkout-tab-amount').value) || 0;
+            if (tabAmount > total) tabAmount = total;
+            if (tabAmount < 0) tabAmount = 0;
+            
+            const immediateAmount = total - tabAmount; 
+
+            // 履歴に載せる支払い方法タグの作成
+            let logPaymentText = "";
+            if (tabAmount === total) {
+                logPaymentText = `(${i18n[currentLang].status_unpaid})`;
+            } else if (tabAmount > 0) {
+                logPaymentText = `[Method: ${selectedBaseMethod} ₱${immediateAmount} / Utang ₱${tabAmount}]`;
+            } else {
+                logPaymentText = `[Method: ${selectedBaseMethod}]`;
+            }
+
+            // 一時バッファオブジェクトの構築
+            finalLogToCommit = {
+                tableId: tId,
+                date: pendingCheckout.date,
+                item: pendingCheckout.item,
+                name: pendingCheckout.name,
+                details: pendingCheckout.details + ` ${logPaymentText}`,
+                immediateAmount: immediateAmount,
+                tabAmount: tabAmount
+            };
+
+            // GCashが選ばれており、即時支払う金額が0より大きい場合のみポップアップを出す
+            if (selectedBaseMethod === 'GCash' && immediateAmount > 0) {
+                document.getElementById('checkout-modal').style.display = 'none';
+                document.getElementById('gcash-popup-amount').innerText = immediateAmount.toLocaleString();
+                document.getElementById('gcash-popup-modal').style.display = 'flex';
+            } else {
+                // Cash または Utangのみの場合は決済確認モーダルを閉じて即座に確定処理
+                document.getElementById('checkout-modal').style.display = 'none';
+                commitPaymentData();
+            }
+        }
+
+        // 決済・売上データを実際にローカルストレージとステートへ反映するコアロジック
+        function commitPaymentData() {
+            if (!finalLogToCommit) return;
+            
+            const data = finalLogToCommit;
+
+            if (data.immediateAmount > 0) {
+                state.totalSales += data.immediateAmount;
+            }
+
+            if (data.tabAmount > 0) {
+                const tabItem = {
+                    id: Date.now(),
+                    date: data.date,
+                    name: data.name,
+                    item: data.item,
+                    details: data.details,
+                    price: data.tabAmount
+                };
+                state.unpaidTabs.push(tabItem);
+            }
+
+            state.history.unshift({
+                date: data.date,
+                item: data.item,
+                name: data.name,
+                details: data.details,
+                price: data.immediateAmount 
+            });
+
+            saveState();
             populateMonthFilter();
             updateSalesAndHistoryDisplay();
+
+            // タイマー枠の完全初期化
+            const tId = data.tableId;
+            timers[tId] = { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null };
+            updateTimerDisplay(tId);
+            document.getElementById(`order-history-${tId}`).innerHTML = "";
             
-            timers[tableId] = { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null };
-            updateTimerDisplay(tableId);
-            document.getElementById(`order-history-${tableId}`).innerHTML = "";
+            document.getElementById(`name-${tId}`).disabled = false;
+            document.getElementById(`plan-${tId}`).disabled = false;
+            document.getElementById(`name-${tId}`).value = "";
+            document.getElementById(`start-time-${tId}`).innerText = "--:--";
+            document.getElementById(`end-time-${tId}`).innerText = "--:--";
+
+            showToast(data.tabAmount > 0 ? i18n[currentLang].toast_tab_added : "Saved successfully.");
             
-            document.getElementById(`name-${tableId}`).disabled = false;
-            document.getElementById(`plan-${tableId}`).disabled = false;
-            document.getElementById(`name-${tableId}`).value = "";
-            document.getElementById(`start-time-${tableId}`).innerText = "--:--";
-            document.getElementById(`end-time-${tableId}`).innerText = "--:--";
+            finalLogToCommit = null;
+            pendingCheckout = null;
         }
+
+        // GCashポップアップ内の「支払い完了」ボタンを押したときの処理
+        function completeGcashPaymentFlow() {
+            // データコミットを実行
+            commitPaymentData();
+            
+            // ポップアップを閉じる
+            document.getElementById('gcash-popup-modal').style.display = 'none';
+        }
+
+        function clearTab(tabId) {
+            const index = state.unpaidTabs.findIndex(t => t.id === tabId);
+            if (index !== -1) {
+                const paidTab = state.unpaidTabs[index];
+                state.totalSales += paidTab.price;
+
+                state.history.unshift({
+                    date: new Date().toLocaleDateString('ja-JP'),
+                    item: `[UTANG PAID] ${paidTab.item}`,
+                    name: paidTab.name,
+                    details: `Collected: ${paidTab.details} (Utang Paid)`,
+                    price: paidTab.price
+                });
+
+                state.unpaidTabs.splice(index, 1);
+                saveState();
+                updateSalesAndHistoryDisplay();
+                showToast(i18n[currentLang].toast_tab_cleared);
+            }
+        }
+
         function updateTimerDisplay(tableId) {
             const rem = timers[tableId].remaining;
             const hrs = String(Math.floor(rem / 3600)).padStart(2, '0');
@@ -985,7 +1375,6 @@
                 totalPrice = unitPrice * qty;
             }
             const unitPriceCalculated = qty > 0 ? Math.round(totalPrice / qty) : totalPrice;
-            
             const purchaseTime = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
 
             let customerField = "";
@@ -993,33 +1382,27 @@
 
             if (targetTable === "Walk-in") {
                 customerField = currentLang === 'en' ? "Walk-in" : "一般客";
+                const log = {
+                    date: new Date().toLocaleDateString('ja-JP'),
+                    item: itemField,
+                    name: customerField,
+                    details: `${name} × ${qty} (Unit:${unitPriceCalculated}) [Time: ${purchaseTime}] [Method: Cash]`,
+                    price: totalPrice
+                };
+                addHistory(log);
+                state.totalSales += totalPrice;
+                saveState();
             } else {
                 const tableId = parseInt(targetTable);
                 const tableCustomerName = document.getElementById(`name-${tableId}`).value || i18n[currentLang].guest;
                 customerField = `${tableCustomerName} (${currentLang === 'en' ? 'Table' : 'テーブル'} ${tableId})`;
                 
                 timers[tableId].orders.push({ name: name, qty: qty, totalPrice: totalPrice });
-                const tagContainer = document.getElementById(`order-history-${tableId}`);
-                const tag = document.createElement('span');
-                tag.className = 'order-tag';
-                tag.innerText = `${name} × ${qty} (₱${totalPrice})`;
-                tagContainer.appendChild(tag);
+                updateTableOrderDisplay(tableId);
             }
-
-            const log = {
-                date: new Date().toLocaleDateString('ja-JP'),
-                item: itemField,
-                name: customerField,
-                details: `${name} × ${qty} (Unit:${unitPriceCalculated}) [Time: ${purchaseTime}]`,
-                price: totalPrice
-            };
-            addHistory(log);
-            state.totalSales += totalPrice;
-            saveState();
             
             populateMonthFilter();
             updateSalesAndHistoryDisplay();
-            
             closeStoreModal();
             showToast(i18n[currentLang].alert_store_done);
         }
@@ -1073,6 +1456,10 @@
             return state.history.filter(log => log.date.startsWith(filterValue));
         }
 
+        function onUtangSearchChange() {
+            updateSalesAndHistoryDisplay();
+        }
+
         function updateSalesAndHistoryDisplay() {
             const filteredData = getFilteredHistory();
             const filterValue = document.getElementById('month-filter').value;
@@ -1085,7 +1472,33 @@
                 const monthlyTotal = filteredData.reduce((sum, log) => sum + log.price, 0);
                 document.getElementById('total-sales').innerText = `₱${monthlyTotal.toLocaleString()}`;
             }
+
+            const searchQuery = (document.getElementById('utang-search-input').value || "").toLowerCase().trim();
+            const unpaidTbody = document.getElementById('unpaid-tbody');
+            unpaidTbody.innerHTML = "";
             
+            let displayDebtTotal = 0;
+
+            state.unpaidTabs.forEach(tab => {
+                if (searchQuery !== "" && !tab.name.toLowerCase().includes(searchQuery)) {
+                    return; 
+                }
+                
+                displayDebtTotal += tab.price;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${tab.date}</td>
+                    <td><strong>${tab.name}</strong> <span style="font-size:11px; color:#aaa;">(${tab.item})</span></td>
+                    <td style="font-size:12px; color:#ccc;">${tab.details}</td>
+                    <td style="color:var(--orange-color); font-weight:bold;">₱${tab.price.toLocaleString()}</td>
+                    <td style="text-align:center;"><button class="btn-paid-status" onclick="clearTab(${tab.id})">${currentLang === 'en' ? 'Mark Paid' : '回収完了'}</button></td>
+                `;
+                unpaidTbody.appendChild(tr);
+            });
+            
+            document.getElementById('total-unpaid').innerText = `₱${displayDebtTotal.toLocaleString()}`;
+
             const tbody = document.getElementById('history-tbody');
             tbody.innerHTML = "";
             filteredData.forEach(log => {
@@ -1155,7 +1568,54 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+
+            
         }
     </script>
+    <!-- Toast Notification Container -->
+<div id="toast-container" style="
+    position: fixed; 
+    bottom: 20px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    background: rgba(0, 173, 181, 0.95); 
+    color: white; 
+    padding: 12px 24px; 
+    border-radius: 30px; 
+    font-weight: bold; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
+    z-index: 9999; 
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+"></div>
+
+<script>
+    // Function to show the toast notification
+    function showToast(message) {
+        const toast = document.getElementById('toast-container');
+        toast.innerText = message;
+        toast.style.display = 'block';
+        toast.style.opacity = '1';
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => { toast.style.display = 'none'; }, 300);
+        }, 3000);
+    }
+
+    // Hooking into existing functions to add notifications
+    const originalSubmitStorePurchase = window.submitStorePurchase;
+    window.submitStorePurchase = function() {
+        originalSubmitStorePurchase();
+        showToast("Purchase recorded successfully!");
+    };
+
+    const originalCommitPaymentData = window.commitPaymentData;
+    window.commitPaymentData = function() {
+        originalCommitPaymentData();
+        showToast("Payment has been processed.");
+    };
+</script>
 </body>
 </html>
