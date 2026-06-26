@@ -435,4 +435,727 @@
                     <button class="btn-pause" onclick="pauseTimer(1)" data-i18n="btn_pause">Pause</button>
                     <button class="btn-plus" onclick="plusHour(1)" data-i18n="btn_plus">+1 Hour</button>
                     <button class="btn-stop" onclick="stopTimer(1)" data-i18n="btn_stop">Stop / Checkout</button>
-                    <button class="btn-
+                    <button class="btn-clear-alarm" id="alarm-btn-1" onclick="clearTableAlarm(1)">OK / STOP ALARM</button>
+                </div>
+
+                <div class="table-order-history">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label data-i18n="label_table_orders" style="margin-bottom: 0;">🛒 Store Orders:</label>
+                        <button onclick="clearTableOrders(1)" style="background: #555; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 3px; cursor: pointer;">Clear</button>
+                    </div>
+                    <div class="order-tag-container" id="order-history-1"></div>
+                </div>
+            </div>
+
+            <div class="table-card" id="table-card-2">
+                <div class="table-header">
+                    <span class="table-title" data-i18n="table_2">Table 2</span>
+                </div>
+                <label data-i18n="label_name">Customer Name (Optional)</label>
+                <input type="text" id="name-2" placeholder="Guest">
+                <label data-i18n="label_plan">Select Plan</label>
+                <select id="plan-2"></select>
+
+                <label data-i18n="label_alarm_sound">Alarm Sound</label>
+                <select id="alarm-sound-2" onchange="saveAlarmSoundSetting(2)">
+                    <option value="default">Default (Table 2)</option>
+                    <option value="table1_alarm.mp3">table1_alarm.mp3</option>
+                    <option value="table2_alarm.mp3">table2_alarm.mp3</option>
+                    <option value="table3_alarm.mp3">table3_alarm.mp3</option>
+                    <option value="time_na.mp3">time_na.mp3</option>
+                    <option value="beep">Beep Only (No File)</option>
+                </select>
+                
+                <div class="time-schedule-info">
+                    <div>▶ <span id="start-time-2">--:--</span></div>
+                    <div>■ <span id="end-time-2">--:--</span></div>
+                </div>
+
+                <div class="timer-display" id="timer-2">00:00:00</div>
+                <div class="btn-grid">
+                    <button class="btn-start" onclick="startTimer(2)" data-i18n="btn_start">Start</button>
+                    <button class="btn-pause" onclick="pauseTimer(2)" data-i18n="btn_pause">Pause</button>
+                    <button class="btn-plus" onclick="plusHour(2)" data-i18n="btn_plus">+1 Hour</button>
+                    <button class="btn-stop" onclick="stopTimer(2)" data-i18n="btn_stop">Stop / Checkout</button>
+                    <button class="btn-clear-alarm" id="alarm-btn-2" onclick="clearTableAlarm(2)">OK / STOP ALARM</button>
+                </div>
+
+                <div class="table-order-history">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label data-i18n="label_table_orders" style="margin-bottom: 0;">🛒 Store Orders:</label>
+                        <button onclick="clearTableOrders(2)" style="background: #555; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 3px; cursor: pointer;">Clear</button>
+                    </div>
+                    <div class="order-tag-container" id="order-history-2"></div>
+                </div>
+            </div>
+
+            <div class="table-card vip" id="table-card-3">
+                <div class="table-header">
+                    <span class="table-title" data-i18n="table_3">Table 3</span>
+                    <span class="vip-badge" data-i18n="badge_vip">VIP</span>
+                </div>
+                <label data-i18n="label_name">Customer Name (Optional)</label>
+                <input type="text" id="name-3" placeholder="Guest">
+                <label data-i18n="label_plan">Select Plan</label>
+                <select id="plan-3"></select>
+
+                <label data-i18n="label_alarm_sound">Alarm Sound</label>
+                <select id="alarm-sound-3" onchange="saveAlarmSoundSetting(3)">
+                    <option value="default">Default (Table 3)</option>
+                    <option value="table1_alarm.mp3">table1_alarm.mp3</option>
+                    <option value="table2_alarm.mp3">table2_alarm.mp3</option>
+                    <option value="table3_alarm.mp3">table3_alarm.mp3</option>
+                    <option value="time_na.mp3">time_na.mp3</option>
+                    <option value="beep">Beep Only (No File)</option>
+                </select>
+                
+                <div class="time-schedule-info">
+                    <div>▶ <span id="start-time-3">--:--</span></div>
+                    <div>■ <span id="end-time-3">--:--</span></div>
+                </div>
+
+                <div class="timer-display" id="timer-3">00:00:00</div>
+                <div class="btn-grid">
+                    <button class="btn-start" onclick="startTimer(3)" data-i18n="btn_start">Start</button>
+                    <button class="btn-pause" onclick="pauseTimer(3)" data-i18n="btn_pause">Pause</button>
+                    <button class="btn-plus" onclick="plusHour(3)" data-i18n="btn_plus">+1 Hour</button>
+                    <button class="btn-stop" onclick="stopTimer(3)" data-i18n="btn_stop">Stop / Checkout</button>
+                    <button class="btn-clear-alarm" id="alarm-btn-3" onclick="clearTableAlarm(3)">OK / STOP ALARM</button>
+                </div>
+
+                <div class="table-order-history">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label data-i18n="label_table_orders" style="margin-bottom: 0;">🛒 Store Orders:</label>
+                        <button onclick="clearTableOrders(3)" style="background: #555; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 3px; cursor: pointer;">Clear</button>
+                    </div>
+                    <div class="order-tag-container" id="order-history-3"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="page-store" class="page">
+        <h2 data-i18n="store_title">STORE</h2>
+        <div class="store-container">
+            <div class="store-grid">
+                <div class="store-category" onclick="openStoreModal('VAPE')">💨 VAPE</div>
+                <div class="store-category" onclick="openStoreModal('SNACK')">🍿 SNACK</div>
+                <div class="store-category" onclick="openStoreModal('DRINKS')">🍹 DRINKS</div>
+                <div class="store-category" onclick="openStoreModal('OTHER')" data-i18n="category_other">📁 OTHER</div>
+            </div>
+            
+            <div class="qr-card">
+                <span style="font-weight: bold; font-size: 14px; color: var(--accent-color);" data-i18n="qr_title">STORE QR CODE</span>
+                <div class="qr-code-placeholder">
+                    <img src="Gcash2.jpg" alt="Store QR">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-soundboard" class="page">
+        <h2>🎵 SOUNDBOARD</h2>
+        <div class="soundboard-grid">
+            <button class="sound-btn" onclick="playBoardSound('timena')">TIME NA</button>
+            <button class="sound-btn" onclick="playBoardSound('uwi')">UWI</button>
+            <button class="sound-btn" onclick="playBoardSound('practice')">PRACTICE PA MORE</button>
+        </div>
+    </div>
+
+    <div id="page-history" class="page">
+        <h2 data-i18n="history_title">Management</h2>
+        <div class="sales-summary">
+            <div>
+                <span style="font-size: 14px; color: #aaa;" id="sales-display-label" data-i18n="total_sales_label">Total Sales</span>
+                <div class="total-amount" id="total-sales">₱0</div>
+            </div>
+            <div>
+                <button onclick="exportCSV()" style="background-color: var(--accent-color); color:white; margin-right: 10px;" data-i18n="btn_csv">CSV Export</button>
+                <button onclick="resetSales()" style="background-color: var(--danger-color); color:white;" data-i18n="btn_reset">Reset Sales</button>
+            </div>
+        </div>
+
+        <div class="filter-area">
+            <label style="margin-bottom:0; font-size:14px; color:white; font-weight:bold;" data-i18n="label_filter_month">Filter by Month:</label>
+            <select id="month-filter" onchange="onMonthFilterChange()">
+                <option value="all" data-i18n="opt_all_months">All Months</option>
+            </select>
+        </div>
+        
+        <div class="history-header-area">
+            <h3 data-i18n="history_sub_title">Usage History (Max 2000)</h3>
+            <button onclick="clearHistory()" style="background-color: #555; color: white; font-size: 12px; padding: 6px 12px;" data-i18n="btn_clear_history">Clear History</button>
+        </div>
+        
+        <div class="history-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-i18n="th_date">Date</th>
+                        <th data-i18n="th_item">Item / Table</th>
+                        <th data-i18n="th_customer">Customer</th>
+                        <th data-i18n="th_details">Details</th>
+                        <th data-i18n="th_sales">Sales</th>
+                    </tr>
+                </thead>
+                <tbody id="history-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="store-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-category-title">Item Purchase</h3>
+            
+            <label data-i18n="modal_select_table">Assign to Table</label>
+            <select id="store-item-table">
+                <option value="Walk-in" data-i18n="opt_walkin">General / Walk-in</option>
+                <option value="1">Table 1</option>
+                <option value="2">Table 2</option>
+                <option value="3">Table 3 (VIP)</option>
+            </select>
+
+            <label data-i18n="modal_item_name">Item Name</label>
+            <input type="text" id="store-item-name" placeholder="">
+            
+            <label id="modal-label-unit-price">Unit Price (₱)</label>
+            <input type="number" id="store-item-unit-price" placeholder="0" oninput="calculateStoreTotal()">
+            
+            <label data-i18n="modal_qty">Quantity</label>
+            <input type="number" id="store-item-qty" value="1" min="1" oninput="calculateStoreTotal()">
+            
+            <label style="color: var(--accent-color); font-weight: bold;" id="modal-label-total-price">Total Price (₱)</label>
+            <input type="number" id="store-item-total-price" placeholder="0">
+            
+            <div class="modal-actions">
+                <button onclick="closeStoreModal()" style="background:#555; color:white;" data-i18n="modal_cancel">Cancel</button>
+                <button onclick="submitStorePurchase()" class="btn-start" data-i18n="modal_buy">Purchase</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        let currentLang = 'en';
+        const i18n = {
+            en: {
+                nav_tables: "Tables", nav_store: "STORE", nav_history: "Sales & History", nav_soundboard: "Soundboard",
+                table_1: "Table 1", table_2: "Table 2", table_3: "Table 3", label_name: "Customer Name (Optional)",
+                label_plan: "Select Plan", btn_start: "Start", btn_pause: "Pause", btn_plus: "+1 Hour", btn_stop: "Stop / Checkout",
+                badge_vip: "VIP", store_title: "STORE", history_title: "Management", total_sales_label: "Total Sales",
+                btn_csv: "CSV Export", btn_reset: "Reset Sales", btn_clear_history: "Clear History", history_sub_title: "Usage History (Max 2000)",
+                th_date: "Date", th_item: "Item / Table", th_customer: "Customer", th_details: "Details", th_sales: "Sales",
+                modal_item_name: "Item Name", modal_price: "Price (₱)", modal_qty: "Quantity", modal_cancel: "Cancel", modal_buy: "Purchase",
+                modal_select_table: "Assign to Table", opt_walkin: "General / Walk-in", qr_title: "STORE QR CODE",
+                alert_confirm_sales_reset: "Are you sure you want to reset Total Sales to ₱0? (History will NOT be deleted)",
+                alert_confirm_history_clear: "WARNING: Are you sure you want to delete ALL usage history? This cannot be undone.",
+                alert_reset_done: "Reset completed.", alert_no_data: "No history data to export.", alert_store_done: "Purchase recorded.",
+                guest: "Guest", plan_ext: " + Ext 1H", label_filter_month: "Filter by Month:", opt_all_months: "All Months",
+                selected_month_sales_label: "Selected Month Sales", label_table_orders: "🛒 Store Orders:",
+                lbl_unit_price: "Unit Price (₱)", lbl_total_price: "Total Price (₱)", category_other: "📁 OTHER",
+                label_alarm_sound: "Alarm Sound"
+            },
+            jp: {
+                nav_tables: "テーブル状況", nav_store: "STORE", nav_history: "履歴・売上", nav_soundboard: "サウンドボード",
+                table_1: "テーブル 1", table_2: "テーブル 2", table_3: "テーブル 3", label_name: "利用者名（任意）",
+                label_plan: "プラン選択", btn_start: "開始", btn_pause: "一時停止", btn_plus: "+1時間", btn_stop: "終了・会計",
+                badge_vip: "VIP席", store_title: "ストア", history_title: "経営管理", total_sales_label: "総売上額 (全期間)",
+                btn_csv: "CSV出力", btn_reset: "売上額リセット", btn_clear_history: "履歴クリア", history_sub_title: "利用履歴 (最大2000件)",
+                th_date: "日時", th_item: "項目 / テーブル", th_customer: "顧客名", th_details: "詳細", th_sales: "売上",
+                modal_item_name: "商品名", modal_price: "価格 (₱)", modal_qty: "個数", modal_cancel: "キャンセル", modal_buy: "購入",
+                modal_select_table: "売上をテーブルに割り当て", opt_walkin: "一般 / フリー客", qr_title: "ストア用QRコード",
+                alert_confirm_sales_reset: "総売上額を ₱0 にリセットしますか？（※利用履歴は消えずに残ります）",
+                alert_confirm_history_clear: "【警告】すべての利用履歴を完全に削除しますか？この操作は取り消せません。",
+                alert_reset_done: "リセットが完了しました。", alert_no_data: "出力する履歴データがありません。", alert_store_done: "購入を記録しました。",
+                guest: "ゲスト", plan_ext: " + 延長1H", label_filter_month: "月別フィルタ:", opt_all_months: "すべての月",
+                selected_month_sales_label: "選択月の売上額", label_table_orders: "🛒 ストア購入履歴:",
+                lbl_unit_price: "単価 (₱)", lbl_total_price: "合計金額 (₱)", category_other: "📁 その他",
+                label_alarm_sound: "アラーム音設定"
+            }
+        };
+        const plans = {
+            standard: [
+                { id: "STUDENT-1", text_en: "STUDENT 1 Hour (₱140)", text_jp: "STUDENT 一時間 (₱140)", price: 140, time: 60 },
+                { id: "STUDENT-2", text_en: "STUDENT 2 Hours (₱260)", text_jp: "STUDENT 二時間 (₱260)", price: 260, time: 120 },
+                { id: "REGULAR-1", text_en: "REGULAR 1 Hour (₱160)", text_jp: "REGULAR 一時間 (₱160)", price: 160, time: 60 },
+                { id: "REGULAR-2", text_en: "REGULAR 2 Hours (₱300)", text_jp: "REGULAR 二時間 (₱300)", price: 300, time: 120 },
+                { id: "DIRTS", text_en: "BILLIARD WITH DIRTS (₱250)", text_jp: "BILLIARD WITH DIRTS (₱250)", price: 250, time: 60 },
+                { id: "TEST-5S", text_en: "【TEST】5 Seconds (₱0)", text_jp: "【テスト】5秒タイマー (₱0)", price: 0, time: 0.0833 }
+            ],
+            vip: [
+                { id: "VIP-1", text_en: "VIP 1 Hour (₱180)", text_jp: "VIP 一時間 (₱180)", price: 180, time: 60 },
+                { id: "VIP-2", text_en: "VIP 2 Hours (₱350)", text_jp: "VIP 二時間 (₱350)", price: 350, time: 120 },
+                { id: "TEST-5S-VIP", text_en: "【TEST】5 Seconds (₱0)", text_jp: "【テスト】5秒タイマー (₱0)", price: 0, time: 0.0833 }
+            ]
+        };
+        let state = { totalSales: 0, history: [] };
+        let timers = {
+            1: { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null },
+            2: { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null },
+            3: { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null }
+        };
+        window.onload = function() {
+            if (localStorage.getItem('taco_loco_state')) {
+                state = JSON.parse(localStorage.getItem('taco_loco_state'));
+            }
+            // 各テーブルのアラーム設定を復元
+            for (let i = 1; i <= 3; i++) {
+                const savedSound = localStorage.getItem(`taco_loco_alarm_${i}`);
+                if (savedSound) {
+                    document.getElementById(`alarm-sound-${i}`).value = savedSound;
+                }
+            }
+            updateLanguageDOM();
+            populateMonthFilter();
+            updateSalesAndHistoryDisplay();
+        };
+        function saveState() {
+            localStorage.setItem('taco_loco_state', JSON.stringify(state));
+        }
+
+        function saveAlarmSoundSetting(tableId) {
+            const soundVal = document.getElementById(`alarm-sound-${tableId}`).value;
+            localStorage.setItem(`taco_loco_alarm_${tableId}`, soundVal);
+            showToast(currentLang === 'en' ? `Table ${tableId} alarm sound updated.` : `テーブル ${tableId} のアラーム音を設定しました。`);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast-container');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleLanguage() {
+            currentLang = (currentLang === 'en') ? 'jp' : 'en';
+            document.getElementById('lang-switch').innerText = (currentLang === 'en') ? 'JP' : 'EN';
+            updateLanguageDOM();
+            
+            const currentFilter = document.getElementById('month-filter').value;
+            populateMonthFilter();
+            document.getElementById('month-filter').value = currentFilter;
+            updateSalesAndHistoryDisplay();
+        }
+        function updateLanguageDOM() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.innerText = i18n[currentLang][key];
+            });
+            document.getElementById('modal-label-unit-price').innerText = i18n[currentLang].lbl_unit_price;
+            document.getElementById('modal-label-total-price').innerText = i18n[currentLang].lbl_total_price;
+            
+            updateSelectOptions(1, 'standard');
+            updateSelectOptions(2, 'standard');
+            updateSelectOptions(3, 'vip');
+        }
+        function updateSelectOptions(tableId, planType) {
+            const select = document.getElementById(`plan-${tableId}`);
+            if (timers[tableId].active) return;
+            const currentVal = select.value;
+            select.innerHTML = "";
+            plans[planType].forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.dataset.price = p.price;
+                opt.dataset.time = p.time;
+                opt.innerText = (currentLang === 'en') ? p.text_en : p.text_jp;
+                select.appendChild(opt);
+            });
+            if (currentVal) select.value = currentVal;
+        }
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            document.getElementById(`nav-${pageId == 'main' ? 'main' : pageId}`).classList.add('active');
+        }
+
+        /* アラーム音源 */
+        function playTableAlarmSound(tableId) {
+            if (timers[tableId].audioObj) {
+                timers[tableId].audioObj.pause();
+                timers[tableId].audioObj.currentTime = 0;
+            }
+
+            let soundSetting = document.getElementById(`alarm-sound-${tableId}`).value;
+            
+            // デフォルト設定の場合のフォールバック
+            if (soundSetting === "default") {
+                if (tableId === 1) soundSetting = "table1_alarm.mp3";
+                else if (tableId === 2) soundSetting = "table2_alarm.mp3";
+                else if (tableId === 3) soundSetting = "table3_alarm.mp3";
+            }
+
+            if (soundSetting !== "beep") {
+                timers[tableId].audioObj = new Audio(soundSetting);
+                timers[tableId].audioObj.play().catch(e => {
+                    console.log("Audio play error, falling back to beep:", e);
+                    triggerBeepSound();
+                });
+            } else {
+                triggerBeepSound();
+            }
+        }
+
+        function triggerBeepSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.4);
+        }
+
+        /* サウンドボード */
+        function playBoardSound(type) {
+            let file = "";
+            if (type === 'timena') file = "time_na.mp3";
+            else if (type === 'uwi') file = "uwi.mp3";
+            else if (type === 'practice') file = "practice_pa_more.mp3";
+
+            if (file !== "") {
+                const audio = new Audio(file);
+                audio.play().catch(e => console.log("Soundboard error:", e));
+            } else {
+                showToast("Sound file not configured.");
+            }
+        }
+
+        function startTimer(tableId) {
+            if (timers[tableId].active) return;
+            const planSelect = document.getElementById(`plan-${tableId}`);
+            const selectedOption = planSelect.options[planSelect.selectedIndex];
+            
+            if (timers[tableId].remaining <= 0) {
+                // テスト用タイマー（小数点）を正しく処理するため parseFloat に修正
+                const totalSeconds = Math.round(parseFloat(selectedOption.dataset.time) * 60);
+                timers[tableId].remaining = totalSeconds;
+                timers[tableId].price = parseInt(selectedOption.dataset.price);
+                timers[tableId].planName = selectedOption.text;
+                
+                const now = new Date();
+                const future = new Date(now.getTime() + totalSeconds * 1000);
+                
+                timers[tableId].startTime = now.toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
+                timers[tableId].endTime = future.toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
+                
+                document.getElementById(`start-time-${tableId}`).innerText = timers[tableId].startTime;
+                document.getElementById(`end-time-${tableId}`).innerText = timers[tableId].endTime;
+                
+                document.getElementById(`name-${tableId}`).disabled = true;
+                document.getElementById(`plan-${tableId}`).disabled = true;
+            }
+            timers[tableId].active = true;
+            timers[tableId].interval = setInterval(() => {
+                if (timers[tableId].remaining > 0) {
+                    timers[tableId].remaining--;
+                    updateTimerDisplay(tableId);
+                    if (timers[tableId].remaining === 0) {
+                        triggerTableAlarm(tableId);
+                    }
+                }
+            }, 1000);
+        }
+
+        function triggerTableAlarm(tableId) {
+            clearInterval(timers[tableId].interval);
+            document.getElementById(`timer-${tableId}`).classList.add('time-up');
+            document.getElementById(`alarm-btn-${tableId}`).style.display = 'block';
+            
+            playTableAlarmSound(tableId);
+            timers[tableId].alarmInterval = setInterval(() => {
+                playTableAlarmSound(tableId);
+            }, 3000);
+        }
+
+        function clearTableAlarm(tableId) {
+            if (timers[tableId].alarmInterval) {
+                clearInterval(timers[tableId].alarmInterval);
+                timers[tableId].alarmInterval = null;
+            }
+            if (timers[tableId].audioObj) {
+                timers[tableId].audioObj.pause();
+                timers[tableId].audioObj.currentTime = 0;
+            }
+            document.getElementById(`timer-${tableId}`).classList.remove('time-up');
+            document.getElementById(`alarm-btn-${tableId}`).style.display = 'none';
+        }
+
+        function clearTableOrders(tableId) {
+            timers[tableId].orders = [];
+            document.getElementById(`order-history-${tableId}`).innerHTML = "";
+            showToast(currentLang === 'en' ? `Table ${tableId} store history cleared.` : `テーブル ${tableId} の購入履歴をクリアしました。`);
+        }
+
+        function pauseTimer(tableId) {
+            if (!timers[tableId].active) return;
+            clearInterval(timers[tableId].interval);
+            timers[tableId].active = false;
+        }
+        function plusHour(tableId) {
+            timers[tableId].remaining += 3600;
+            let extendPrice = (tableId === 3) ? 180 : 150;
+            timers[tableId].price += extendPrice;
+            timers[tableId].planName += i18n[currentLang].plan_ext;
+            
+            if(timers[tableId].endTime) {
+                const parts = timers[tableId].endTime.split(':');
+                let h = parseInt(parts[0]);
+                let m = parseInt(parts[1]);
+                h = (h + 1) % 24;
+                timers[tableId].endTime = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+                document.getElementById(`end-time-${tableId}`).innerText = timers[tableId].endTime;
+            }
+            updateTimerDisplay(tableId);
+        }
+        function stopTimer(tableId) {
+            if (timers[tableId].startTime === null) return;
+            clearInterval(timers[tableId].interval);
+            clearTableAlarm(tableId);
+            
+            const endTimeActual = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
+            const customerName = document.getElementById(`name-${tableId}`).value || i18n[currentLang].guest;
+            
+            const finalPrice = timers[tableId].price;
+
+            const log = {
+                date: new Date().toLocaleDateString('ja-JP'),
+                item: `${currentLang === 'en' ? 'Table' : 'テーブル'} ${tableId}`,
+                name: customerName,
+                details: `Plan: ${timers[tableId].planName} [Start: ${timers[tableId].startTime} ~ End: ${endTimeActual}]`,
+                price: finalPrice
+            };
+            addHistory(log);
+            state.totalSales += finalPrice;
+            saveState();
+            
+            populateMonthFilter();
+            updateSalesAndHistoryDisplay();
+            
+            timers[tableId] = { remaining: 0, interval: null, active: false, startTime: null, endTime: null, price: 0, planName: "", orders: [], alarmInterval: null, audioObj: null };
+            updateTimerDisplay(tableId);
+            document.getElementById(`order-history-${tableId}`).innerHTML = "";
+            
+            document.getElementById(`name-${tableId}`).disabled = false;
+            document.getElementById(`plan-${tableId}`).disabled = false;
+            document.getElementById(`name-${tableId}`).value = "";
+            document.getElementById(`start-time-${tableId}`).innerText = "--:--";
+            document.getElementById(`end-time-${tableId}`).innerText = "--:--";
+        }
+        function updateTimerDisplay(tableId) {
+            const rem = timers[tableId].remaining;
+            const hrs = String(Math.floor(rem / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((rem % 3600) / 60)).padStart(2, '0');
+            const secs = String(rem % 60).padStart(2, '0');
+            document.getElementById(`timer-${tableId}`).innerText = `${hrs}:${mins}:${secs}`;
+        }
+        let currentStoreCategory = "";
+        function openStoreModal(category) {
+            currentStoreCategory = category;
+            const titleText = currentLang === 'jp' && category === 'OTHER' ? i18n.jp.category_other : category;
+            document.getElementById('modal-category-title').innerText = `${titleText}`;
+            document.getElementById('store-item-table').selectedIndex = 0;
+            document.getElementById('store-item-name').value = "";
+            document.getElementById('store-item-unit-price').value = "";
+            document.getElementById('store-item-qty').value = "1";
+            document.getElementById('store-item-total-price').value = "";
+            document.getElementById('store-modal').style.display = 'flex';
+        }
+        function closeStoreModal() {
+            document.getElementById('store-modal').style.display = 'none';
+        }
+        function calculateStoreTotal() {
+            const unitPrice = parseInt(document.getElementById('store-item-unit-price').value) || 0;
+            const qty = parseInt(document.getElementById('store-item-qty').value) || 1;
+            document.getElementById('store-item-total-price').value = unitPrice * qty;
+        }
+        function submitStorePurchase() {
+            const targetTable = document.getElementById('store-item-table').value;
+            const name = document.getElementById('store-item-name').value || "Item";
+            const qty = parseInt(document.getElementById('store-item-qty').value) || 1;
+            
+            let totalPrice = parseInt(document.getElementById('store-item-total-price').value);
+            if (isNaN(totalPrice)) {
+                const unitPrice = parseInt(document.getElementById('store-item-unit-price').value) || 0;
+                totalPrice = unitPrice * qty;
+            }
+            const unitPriceCalculated = qty > 0 ? Math.round(totalPrice / qty) : totalPrice;
+            
+            const purchaseTime = new Date().toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
+
+            let customerField = "";
+            let itemField = `STORE [${currentStoreCategory}]`;
+
+            if (targetTable === "Walk-in") {
+                customerField = currentLang === 'en' ? "Walk-in" : "一般客";
+            } else {
+                const tableId = parseInt(targetTable);
+                const tableCustomerName = document.getElementById(`name-${tableId}`).value || i18n[currentLang].guest;
+                customerField = `${tableCustomerName} (${currentLang === 'en' ? 'Table' : 'テーブル'} ${tableId})`;
+                
+                timers[tableId].orders.push({ name: name, qty: qty, totalPrice: totalPrice });
+                const tagContainer = document.getElementById(`order-history-${tableId}`);
+                const tag = document.createElement('span');
+                tag.className = 'order-tag';
+                tag.innerText = `${name} × ${qty} (₱${totalPrice})`;
+                tagContainer.appendChild(tag);
+            }
+
+            const log = {
+                date: new Date().toLocaleDateString('ja-JP'),
+                item: itemField,
+                name: customerField,
+                details: `${name} × ${qty} (Unit:${unitPriceCalculated}) [Time: ${purchaseTime}]`,
+                price: totalPrice
+            };
+            addHistory(log);
+            state.totalSales += totalPrice;
+            saveState();
+            
+            populateMonthFilter();
+            updateSalesAndHistoryDisplay();
+            
+            closeStoreModal();
+            showToast(i18n[currentLang].alert_store_done);
+        }
+        function addHistory(logItem) {
+            state.history.unshift(logItem);
+            if (state.history.length > 2000) {
+                state.history.pop();
+            }
+        }
+
+        function populateMonthFilter() {
+            const filterSelect = document.getElementById('month-filter');
+            const currentSelected = filterSelect.value || "all";
+            filterSelect.innerHTML = `<option value="all">${i18n[currentLang].opt_all_months}</option>`;
+            
+            const months = [];
+            state.history.forEach(log => {
+                const parts = log.date.split('/');
+                if (parts.length >= 2) {
+                    const yearMonth = `${parts[0]}/${parts[1]}`;
+                    if (!months.includes(yearMonth)) {
+                        months.push(yearMonth);
+                    }
+                }
+            });
+            
+            months.sort((a, b) => b.localeCompare(a));
+            months.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.innerText = m;
+                filterSelect.appendChild(opt);
+            });
+            
+            if ([...filterSelect.options].some(o => o.value === currentSelected)) {
+                filterSelect.value = currentSelected;
+            } else {
+                filterSelect.value = "all";
+            }
+        }
+
+        function onMonthFilterChange() {
+            updateSalesAndHistoryDisplay();
+        }
+
+        function getFilteredHistory() {
+            const filterValue = document.getElementById('month-filter').value;
+            if (filterValue === 'all') {
+                return state.history;
+            }
+            return state.history.filter(log => log.date.startsWith(filterValue));
+        }
+
+        function updateSalesAndHistoryDisplay() {
+            const filteredData = getFilteredHistory();
+            const filterValue = document.getElementById('month-filter').value;
+            
+            if (filterValue === 'all') {
+                document.getElementById('sales-display-label').innerText = i18n[currentLang].total_sales_label;
+                document.getElementById('total-sales').innerText = `₱${state.totalSales.toLocaleString()}`;
+            } else {
+                document.getElementById('sales-display-label').innerText = `${i18n[currentLang].selected_month_sales_label} (${filterValue})`;
+                const monthlyTotal = filteredData.reduce((sum, log) => sum + log.price, 0);
+                document.getElementById('total-sales').innerText = `₱${monthlyTotal.toLocaleString()}`;
+            }
+            
+            const tbody = document.getElementById('history-tbody');
+            tbody.innerHTML = "";
+            filteredData.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.date}</td>
+                    <td><strong>${log.item}</strong></td>
+                    <td>${log.name}</td>
+                    <td style="font-size:12px; color:#ccc;">${log.details}</td>
+                    <td style="color:var(--gold-color); font-weight:bold;">₱${log.price.toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function resetSales() {
+            const confirmReset = confirm(i18n[currentLang].alert_confirm_sales_reset);
+            if (confirmReset) {
+                state.totalSales = 0;
+                saveState();
+                updateSalesAndHistoryDisplay();
+                showToast(i18n[currentLang].alert_reset_done);
+            }
+        }
+
+        function clearHistory() {
+            const confirmClear = confirm(i18n[currentLang].alert_confirm_history_clear);
+            if (confirmClear) {
+                state.history = [];
+                saveState();
+                populateMonthFilter();
+                updateSalesAndHistoryDisplay();
+                showToast(i18n[currentLang].alert_reset_done);
+            }
+        }
+
+        function exportCSV() {
+            const filteredData = getFilteredHistory();
+            if (filteredData.length === 0) {
+                alert(i18n[currentLang].alert_no_data);
+                return;
+            }
+            let csvContent = "\uFEFF";
+            if (currentLang === 'en') {
+                csvContent += "Date,Item/Table,Customer,Details,Sales\n";
+            } else {
+                csvContent += "日時,項目/テーブル,顧客名,詳細,売上\n";
+            }
+            filteredData.forEach(log => {
+                let row = [
+                    `"${log.date}"`,
+                    `"${log.item}"`,
+                    `"${log.name}"`,
+                    `"${log.details.replace(/"/g, '""')}"`,
+                    log.price
+                ].join(",");
+                csvContent += row + "\n";
+            });
+            const filterValue = document.getElementById('month-filter').value;
+            const fileSuffix = filterValue === 'all' ? 'all' : filterValue.replace('/', '-');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `taco_loco_sales_${fileSuffix}_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
